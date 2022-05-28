@@ -7,6 +7,7 @@ import track.CurvedTrack;
 import track.Point;
 import track.StraightTrack;
 import track.Track;
+import train.Consist;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -21,7 +22,9 @@ import java.util.List;
 public class TestWindow extends JFrame {
     
     protected Viewport viewport;
+
     protected List<Track> pieces;
+    protected List<Consist> consists;
     
     public static void main (String args[]) throws Exception {
         new TestWindow();
@@ -61,10 +64,15 @@ public class TestWindow extends JFrame {
 
 
         pieces = new ArrayList<>();
+        consists = new ArrayList<>();
+
 
         pieces.add(StraightTrack.create(new Point(0, 0), new Point(0, 100)));
         pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 100, Math.PI / 2));
         pieces.add(CurvedTrack.create(pieces.get(0).getEnd(0), CurvedTrack.Direction.RIGHT, 100, Math.PI * 0.75));
+
+        consists.add(Consist.createDebugConsist(3, true));
+        consist.place(pieces.get(0).getEnd(0), 10);
 
 /*        
         pieces.add(StraightTrack.create(new Point(0, 0), new Point(5, 5)));
@@ -102,6 +110,8 @@ System.out.println("Rendering");
             viewport.setGraphics(gfx);
 
             pieces.forEach((piece) -> piece.render(viewport));
+
+            consists.forEach((consist) -> consist.render(viewport));
         }
     }
 
