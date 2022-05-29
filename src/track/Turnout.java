@@ -86,7 +86,7 @@ public class Turnout extends Junction {
 
 
     @Override
-    public Point getPointFrom(TrackEnd start, double distance) throws PathException, TrackException {
+    public PointContext getPointFrom(TrackEnd start, double distance) throws PathException, TrackException {
         // TODO Auto-generated method stub
         return null;
     }

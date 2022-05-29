@@ -28,7 +28,8 @@ public class StraightTrack extends BasicTrack {
 
         t.length = length;
         t.ends.add(TrackEnd.createAttached(t, end));
-        t.ends.add(TrackEnd.create(t, new Point((Math.cos(end.getAng()) * length) + end.getLoc().lat, (Math.sin(end.getAng()) * length) + end.getLoc().lon), end.getAng()));
+        t.ends.add(TrackEnd.create(t, new Point(end.getLoc(), end.getAng(), length), end.getAng()));
+//        t.ends.add(TrackEnd.create(t, new Point((Math.cos(end.getAng()) * length) + end.getLoc().lat, (Math.sin(end.getAng()) * length) + end.getLoc().lon), end.getAng()));
         t.getEnd(0).connect(end);
 
         return t;
@@ -68,8 +69,23 @@ public class StraightTrack extends BasicTrack {
     }
 
     @Override
-    public Point getPointFrom(TrackEnd end, double distance) throws PathException {
-        // TODO Auto-generated method stub
-        return null;
+    public PointContext getPointFrom(TrackEnd end, double distance) throws PathException, TrackException {
+System.out.println(this + ".getPointFrom(" + distance + ")");
+        if (!ends.contains(end))
+            throw new TrackException(this, "Doesn't contain " + end);
+
+        // do we need to look at the next piece?
+        if (distance > length)
+        {
+            double remainingLength = distance - length;
+            TrackEnd otherEnd = pathFrom(end);
+            if (otherEnd.connectedEnd == null)
+                throw new PathException(this, String.format("Point is %1.1fm off the end of track", remainingLength));
+
+            return otherEnd.connectedEnd.getParent().getPointFrom(otherEnd.connectedEnd, remainingLength);
+        }
+
+        double direction = Point.add(end.getAng(), Math.PI); // 180 deg away
+        return new PointContext(end.getLoc(), direction, distance, this, end, distance);
     }
 }

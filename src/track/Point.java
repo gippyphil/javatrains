@@ -17,6 +17,13 @@ public class Point {
         this(lat, lon, 0.0d);
     }
 
+    public Point (Point origin, double angle, double distance)
+    {
+        lat = Math.cos(angle) * distance + origin.lat;
+        lon = Math.sin(angle) * distance + origin.lon;
+        alt = origin.alt;
+    }
+
     public static double findAngle (Point a, Point b)
     {
         return Math.atan2(b.lon - a.lon, b.lat - a.lat);

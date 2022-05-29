@@ -1,6 +1,6 @@
 package path;
 
-import javax.sound.midi.Track;
+import track.Track;
 
 public class PathException extends Exception {
     

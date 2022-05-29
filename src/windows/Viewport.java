@@ -10,7 +10,7 @@ import track.Point;
 import track.TrackEnd;
 
 public class Viewport {
-    protected double scale = 3.0d;
+    protected double scale = 8.0d;
     protected double leftLon = 0;
     protected double bottomLat = 0;
     protected int height;
@@ -133,5 +133,9 @@ System.out.format("New scale is %1.2f\n", scale);
     public void setSize(int width, int height) {
         this.width = width;
         this.height = height;
+    }
+
+    public boolean showDebug() {
+        return false;
     }
 }

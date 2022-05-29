@@ -10,7 +10,7 @@ public class TrackEnd {
 
     private Point loc;
     private double ang;
-    protected Track parent;
+    private Track parent;
     protected int id;
 
     protected TrackEnd connectedEnd;
@@ -19,12 +19,12 @@ public class TrackEnd {
         return new TrackEnd (parent, location, angle);
     }
 
-    public Point getLoc() {
-        return loc;
+    public Track getParent() {
+        return parent;
     }
 
-    public void setLoc(Point loc) {
-        this.loc = loc;
+    public Point getLoc() {
+        return loc;
     }
 
     public double getAng() {
@@ -44,7 +44,7 @@ public class TrackEnd {
 
     protected TrackEnd (Track parent, Point location, double angle) {
         this.parent = parent;
-        this.setLoc(location);
+        this.loc = location;
         this.setAng(angle);
         this.id = ++nextID;
     }
@@ -66,7 +66,7 @@ public class TrackEnd {
 
     public void render (Viewport v)
     {
-        final int LEN = v.scaledInt(1.3);
+        final int LEN = v.scaledInt(2);
         final int x = v.getX(getLoc());
         final int y = v.getY(getLoc());
 

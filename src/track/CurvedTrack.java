@@ -98,7 +98,7 @@ public class CurvedTrack extends BasicTrack {
 
 
     @Override
-    public Point getPointFrom(TrackEnd end, double distance) {
+    public PointContext getPointFrom(TrackEnd end, double distance) {
         // TODO Auto-generated method stub
         return null;
     }

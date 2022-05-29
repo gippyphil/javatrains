@@ -8,7 +8,7 @@ import windows.Viewport;
 
 public abstract class Track {
 
-    public static final double GAUGE = 1.5; // metres .. close enough
+    public static final double GAUGE = 1.43; // metres .. close enough
 
     public static final double HORZ_CLEARANCE = 4.0; // metres? between tracks
 
@@ -35,9 +35,9 @@ public abstract class Track {
      * exceeds the length of track, it will follow the path to find the point
      * @param start The end of this track to measure from
      * @param distance The distance to measure along
-     * @return The point in space
+     * @return The point in space, in context of the track and track end
      * @throws PathException if distance extends beyond the end of the valid path
      * @throws TrackException if start is not one of the ends in this track
      */
-    public abstract Point getPointFrom (TrackEnd start, double distance) throws PathException, TrackException;
+    public abstract PointContext getPointFrom (TrackEnd start, double distance) throws PathException, TrackException;
 }
