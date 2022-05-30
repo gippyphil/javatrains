@@ -90,6 +90,7 @@ System.out.format("V%04dd: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFront
         // TODO this is inaccurate  for curves - need an "intersection" based model on wheelbase
         frontPoint = start.getParent().getPointFrom(start, distance);
 
+        // TODO this is inaccurate  for curves - need an "intersection" based model on wheelbase
         PointContext frontWheelPC = start.getParent().getPointFrom(start, distance + Vehicle.GAP / 2 + distanceToFrontWheel);
         // TODO (reversed vehicles in consists??)
         frontWheel.location = frontWheelPC;

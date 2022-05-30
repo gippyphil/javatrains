@@ -1,5 +1,6 @@
 package windows;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseEvent;
@@ -91,7 +92,7 @@ public class Viewport {
     
     public boolean showTwoRails ()
     {
-        return scaledInt(1.5) >= 5; // if we have less than 3 pixels between the rails, only show one
+        return scaledInt(1.5) >= 4; // if we have less than 2 pixels between the rails, only show one
     }
 
 
@@ -133,6 +134,23 @@ System.out.format("New scale is %1.2f\n", scale);
     public void setSize(int width, int height) {
         this.width = width;
         this.height = height;
+    }
+
+    public void setColor (Color c) {
+        gfx.setColor(c);
+    }
+
+    public void drawLine (Point a, Point b)
+    {
+        gfx.drawLine(getX(a), getY(a), getX(b), getY(b));
+    }
+
+    public void drawArc (Point center, double radius, double startAngle, double arcRadians)
+    {
+        int x = getXPlus(center, -radius);
+        int y = getYPlus(center, -radius);
+        gfx.drawArc(x, y, scaledInt(radius * 2), scaledInt(radius * 2), (int)Math.floor(Math.toDegrees(startAngle)), (int)Math.floor(Math.toDegrees(arcRadians)));
+
     }
 
     public boolean showDebug() {

@@ -15,7 +15,7 @@ public class StraightTrack extends BasicTrack {
         double exitAngle = Point.findAngle(start, end);
         double entryAngle = Point.reverse(exitAngle);
 
-        t.length = Math.sqrt(Math.pow(end.lat - start.lat, 2) + Math.pow(end.lon - start.lon, 2));
+        t.length = Point.findDistance(start, end);
 
         t.ends.add(TrackEnd.create(t, start, entryAngle));
         t.ends.add(TrackEnd.create(t, end, exitAngle));

@@ -29,6 +29,10 @@ public class Point {
         return Math.atan2(b.lon - a.lon, b.lat - a.lat);
     }
 
+    public static double findDistance (Point start, Point end) {
+        return Math.sqrt(Math.pow(end.lat - start.lat, 2) + Math.pow(end.lon - start.lon, 2));
+    }
+
     @Override
     public String toString () {
         return String.format("[%1.3f, %1.3f]", lat, lon);

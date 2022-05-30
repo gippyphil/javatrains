@@ -92,7 +92,54 @@ public class CurvedTrack extends BasicTrack {
             v.getGraphics().drawArc(x, y, v.scaledInt(radius * 2), v.scaledInt(radius * 2), gfxStartAngle, gfxArcDegrees);
         }
 
+
+        for (TrackEnd end : ends)
+        {
+            if (end.connectedEnd == null)
+                continue;
+
+            // draw a circle of 12m radius
+            double rad2 = 12.0d;
+
+            v.getGraphics().setColor(Color.CYAN);
+            v.drawArc(end.getLoc(), rad2, Point.add(end.getAng(), -Math.PI / 2), Math.PI * 2);
+            //v.getGraphics().setColor(Color.YELLOW);
+            //v.drawArc(pivotPoint, radius, 0, Math.PI * 2);
+
+            v.setColor(Color.ORANGE);
+            v.drawLine(pivotPoint, end.getLoc());
+
+            v.setColor(end == ends.get(0) ? Color.GREEN : Color.RED);
+            v.drawLine(pivotPoint, findIntersection(end, end.getLoc(), rad2));
+        }
+
         super.render(v);
+    }
+
+    public Point findIntersection (TrackEnd end, Point pivotPoint2, double radius2) {
+        // three sided triangle where sides:
+        //   A = distance between this.pivotPoint and pivotPoint2
+        //   B = this.radius
+        //   C = radius2
+        // Law of Cosines gives as the angle between A and B
+        double A = Point.findDistance(pivotPoint, pivotPoint2);
+        double B = this.radius;
+        double C = radius2;
+
+        double CosA = (B*B + A*A - C*C) / (2*B*A);
+        double angle = Math.acos(CosA);
+
+        // measuring from the "other" end has the effect of turning a left turn into a right
+        if (dir == Direction.RIGHT ^ end == ends.get(1))
+        {
+            angle += Point.findAngle(pivotPoint, pivotPoint2);
+            return new Point(pivotPoint, angle, radius);
+        }
+        else
+        {
+            angle -= Point.findAngle(pivotPoint, pivotPoint2);
+            return new Point(pivotPoint, -angle, radius);
+        }
     }
 
 
