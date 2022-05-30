@@ -24,10 +24,10 @@ public class Vehicle implements AnimationListener {
     // wheels are rotation points with the track, so a single axle or the centre point of a set of fixed axles (eg: a bogie)
     // a steam loco would have two 'wheels' for the front and rear driving wheels - the leading and trailing trucks don't affect
     // the vehicles position
-    protected Wheel frontWheel;
-    protected Wheel backWheel;
-    protected PointContext frontPoint;
-    protected PointContext backPoint;
+    protected PointContext frontWheel;
+    protected PointContext backWheel;
+    protected Point frontPoint;
+    protected Point backPoint;
     protected double distanceToFrontWheel;
     protected double distanceToBackWheel;
     protected double length;
@@ -46,15 +46,13 @@ public class Vehicle implements AnimationListener {
         this.distanceToFrontWheel = distanceToFrontWheel;
         this.distanceToBackWheel = distanceToBackWheel;
         this.wheelbase = length - distanceToBackWheel - distanceToFrontWheel;
-        this.frontWheel = new Wheel(this);
-        this.backWheel = new Wheel(this);
 
         this.id = ++nextID;
-System.out.format("V%04dd: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFrontWheel, distanceToBackWheel);
+System.out.format("V%04d: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFrontWheel, distanceToBackWheel);
     }
 
     public Track getFrontTrack () {
-        return frontWheel.track;
+        return frontWheel.getTrack();
     }
 
     /**
@@ -62,12 +60,16 @@ System.out.format("V%04dd: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFront
      * is the point that would interface with another vehicle (eg: the coupler)
      * @return Point the location on the track of the front of the vehicle
      */
-    public PointContext getFrontPoint () {
+    public Point getFrontPoint () {
         return frontPoint;
     }
 
+    public PointContext getFrontWheel () {
+        return frontWheel;
+    }
+
     public Track getBackTrack () {
-        return backWheel.track;
+        return backWheel.getTrack();
     }
 
     /**
@@ -75,8 +77,12 @@ System.out.format("V%04dd: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFront
      * is the point that would interface with another vehicle (eg: the coupler)
      * @return Point the location on the track of the back of the vehicle
      */
-    public PointContext getBackPoint () {
+    public Point getBackPoint () {
         return backPoint;
+    }
+
+    public PointContext getBackWheel () {
+        return backWheel;
     }
 
     @Override
@@ -85,26 +91,27 @@ System.out.format("V%04dd: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFront
         
     }
 
-    public void place (TrackEnd start, double distance) throws PathException, TrackException
+    public void place (PointContext previousPoint, TrackEnd start, double distance) throws PathException, TrackException
     {
-        // TODO this is inaccurate  for curves - need an "intersection" based model on wheelbase
-        frontPoint = start.getParent().getPointFrom(start, distance);
-
-        // TODO this is inaccurate  for curves - need an "intersection" based model on wheelbase
-        PointContext frontWheelPC = start.getParent().getPointFrom(start, distance + Vehicle.GAP / 2 + distanceToFrontWheel);
         // TODO (reversed vehicles in consists??)
-        frontWheel.location = frontWheelPC;
-        frontWheel.track = frontWheelPC.getTrack();
-        
-        // TODO this is inaccurate  for curves - need an "intersection" based model on wheelbase
-        PointContext backWheelPC = start.getParent().getPointFrom(start, distance + Vehicle.GAP / 2 + distanceToFrontWheel + wheelbase);
-        backWheel.location = backWheelPC;
-        backWheel.track = backWheelPC.getTrack();
 
-        angle = Point.findAngle(frontWheel.location, backWheel.location);
+        if (previousPoint == null) {
+            // if we don't have a previous vehicle we can approximate
+            frontWheel = start.getParent().getPointFrom(null, start, distance + Vehicle.GAP / 2 + distanceToFrontWheel);
+        } else {
+            // if we do have a previous position then we place the front wheel from that
+            frontWheel = start.getParent().getPointFrom(previousPoint, start, distance);
+        }
+        backWheel = frontWheel.getTrack().getPointFrom(frontWheel, frontWheel.getEnd(), wheelbase);
 
-        // TODO this is inaccurate  for curves - need an "intersection" based model on wheelbase
-        backPoint = start.getParent().getPointFrom(start, distance + length + Vehicle.GAP);
+System.out.format("V%04d: %s %s == %1.1f (expected %1.1f)\n", id, frontWheel, backWheel, Point.findDistance(frontWheel, backWheel), wheelbase);
+
+        angle = Point.findAngle(backWheel, frontWheel);
+
+        frontPoint = new Point(frontWheel, angle, distanceToFrontWheel + Vehicle.GAP / 2);
+        backPoint = new Point(backWheel, Point.reverse(angle), distanceToBackWheel + Vehicle.GAP / 2);
+
+        System.out.format("V%04d: %s %s == %1.1f\n", id, frontPoint, backPoint, Point.findDistance(frontPoint, backPoint));
     }
 
     public void render(Viewport viewport)
@@ -121,17 +128,17 @@ System.out.format("V%04dd: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFront
         int yPoints[] = {viewport.getY(corner1), viewport.getY(corner2), viewport.getY(corner3), viewport.getY(corner4)};
 
 
-        viewport.getGraphics().setColor(Color.GRAY);
-        viewport.getGraphics().fillPolygon(xPoints, yPoints, 4);
-        viewport.getGraphics().setColor(Color.WHITE);
+        viewport.getGraphics().setColor(id == 1 ? Color.PINK : Color.GRAY);
+        //viewport.getGraphics().fillPolygon(xPoints, yPoints, 4);
+        //viewport.getGraphics().setColor(Color.WHITE);
         viewport.getGraphics().drawPolygon(xPoints, yPoints, 4);
 
         // DEBUG ONLY!
         if (viewport.showDebug()) {
-            int x1 = viewport.getX(frontWheel.location);
-            int y1 = viewport.getY(frontWheel.location);
-            int x2 = viewport.getX(backWheel.location);
-            int y2 = viewport.getY(backWheel.location);
+            int x1 = viewport.getX(frontWheel);
+            int y1 = viewport.getY(frontWheel);
+            int x2 = viewport.getX(backWheel);
+            int y2 = viewport.getY(backWheel);
 
             int gfxWheelbase = viewport.scaledInt(wheelbase);
             viewport.getGraphics().setColor(Color.GREEN);

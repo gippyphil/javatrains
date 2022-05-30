@@ -69,23 +69,48 @@ public class StraightTrack extends BasicTrack {
     }
 
     @Override
-    public PointContext getPointFrom(TrackEnd end, double distance) throws PathException, TrackException {
-System.out.println(this + ".getPointFrom(" + distance + ")");
+    public PointContext getPointFrom (PointContext previousPivot, TrackEnd end, double distance) throws PathException, TrackException {
+//System.out.println(this + ".getPointFrom(" + distance + ")");
         if (!ends.contains(end))
             throw new TrackException(this, "Doesn't contain " + end);
 
-        // do we need to look at the next piece?
-        if (distance > length)
+        if (previousPivot == null)
         {
-            double remainingLength = distance - length;
-            TrackEnd otherEnd = pathFrom(end);
-            if (otherEnd.connectedEnd == null)
-                throw new PathException(this, String.format("Point is %1.1fm off the end of track", remainingLength));
+            // simple!            
+            if (distance > length)
+            {
+                double remainingLength = distance - length;
+                TrackEnd otherEnd = pathFrom(end);
+                if (otherEnd.connectedEnd == null)
+                    throw new PathException(this, String.format("Point is %1.1fm off the end of track", remainingLength));
+    
+                return otherEnd.connectedEnd.getParent().getPointFrom(previousPivot, otherEnd.connectedEnd, remainingLength);
+            }
+    
+            double direction = Point.add(end.getAng(), Math.PI); // 180 deg away
+            return new PointContext(end.getLoc(), direction, distance, this, end);
+        } else if (previousPivot.getTrack() == this) {
+            
+            // almost as simple!
+            double calcLength = Point.findDistance(previousPivot, pathFrom(end).getLoc());
+            if (distance > calcLength)
+            {
+                double remainingLength = distance - calcLength;
+                TrackEnd otherEnd = pathFrom(end);
+                if (otherEnd.connectedEnd == null)
+                    throw new PathException(this, String.format("Point is %1.1fm off the end of track", remainingLength));
+    
+                return otherEnd.connectedEnd.getParent().getPointFrom(previousPivot, otherEnd.connectedEnd, remainingLength);
+            }
 
-            return otherEnd.connectedEnd.getParent().getPointFrom(otherEnd.connectedEnd, remainingLength);
+            double direction = Point.add(end.getAng(), Math.PI); // 180 deg away
+            return new PointContext(end.getLoc(), direction, distance, this, end);
+        } else 
+        // TODO handle a string of straight track maybe?
+        {
+            // coming off a curve possibly? maths/intersections... 
+            return null;
         }
-
-        double direction = Point.add(end.getAng(), Math.PI); // 180 deg away
-        return new PointContext(end.getLoc(), direction, distance, this, end, distance);
+        // do we need to look at the next piece?
     }
 }

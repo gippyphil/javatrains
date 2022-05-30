@@ -95,8 +95,8 @@ public class CurvedTrack extends BasicTrack {
 
         for (TrackEnd end : ends)
         {
-            if (end.connectedEnd == null)
-                continue;
+//            if (end.connectedEnd == null)
+//                continue;
 
             // draw a circle of 12m radius
             double rad2 = 12.0d;
@@ -109,8 +109,12 @@ public class CurvedTrack extends BasicTrack {
             v.setColor(Color.ORANGE);
             v.drawLine(pivotPoint, end.getLoc());
 
-            v.setColor(end == ends.get(0) ? Color.GREEN : Color.RED);
-            v.drawLine(pivotPoint, findIntersection(end, end.getLoc(), rad2));
+            Point intersection = findIntersection(end, end.getLoc(), rad2);
+            if (intersection != null)
+            {
+                v.setColor(end == ends.get(0) ? Color.GREEN : Color.RED);
+                v.drawLine(pivotPoint, intersection);
+            }
         }
 
         super.render(v);
@@ -129,6 +133,10 @@ public class CurvedTrack extends BasicTrack {
         double CosA = (B*B + A*A - C*C) / (2*B*A);
         double angle = Math.acos(CosA);
 
+        // this is impossible
+        if (Math.abs(angle) > Math.abs(arcRadians))
+            return null;
+
         // measuring from the "other" end has the effect of turning a left turn into a right
         if (dir == Direction.RIGHT ^ end == ends.get(1))
         {
@@ -145,7 +153,7 @@ public class CurvedTrack extends BasicTrack {
 
 
     @Override
-    public PointContext getPointFrom(TrackEnd end, double distance) {
+    public PointContext getPointFrom (PointContext previousPivot, TrackEnd end, double distance) {
         // TODO Auto-generated method stub
         return null;
     }

@@ -154,6 +154,6 @@ System.out.format("New scale is %1.2f\n", scale);
     }
 
     public boolean showDebug() {
-        return false;
+        return true;
     }
 }

@@ -77,8 +77,7 @@ public class Turnout extends Junction {
 
     @Override
     public void render(Viewport v) {
-        // TODO Auto-generated method stub
-        
+        components.forEach((component) -> component.render(v));        
     }
 
 
@@ -86,7 +85,7 @@ public class Turnout extends Junction {
 
 
     @Override
-    public PointContext getPointFrom(TrackEnd start, double distance) throws PathException, TrackException {
+    public PointContext getPointFrom (PointContext previousPoint, TrackEnd start, double distance) throws PathException, TrackException {
         // TODO Auto-generated method stub
         return null;
     }

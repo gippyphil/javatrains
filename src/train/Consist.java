@@ -66,7 +66,7 @@ public class Consist {
      * is the point that would interface with another vehicle (eg: the coupler)
      * @return Point the location on the track of the front of the front vehicle
      */
-    public PointContext getFrontPoint () {
+    public Point getFrontPoint () {
         return vehicles.getFirst().getFrontPoint();
     }
 
@@ -85,14 +85,16 @@ public class Consist {
 
     public void place (TrackEnd start, double offsetDistance) throws PathException, TrackException
     {
-        TrackEnd currentEnd = start;
-        double currentOffset = offsetDistance;
+        double prevOffset = offsetDistance;
+        PointContext prevWheel = null;
+        Vehicle prevVehicle = null;
         for (Vehicle vehicle : vehicles) {
-            vehicle.place(currentEnd, currentOffset);
+            if (prevVehicle != null)
+                prevOffset = prevVehicle.distanceToBackWheel + vehicle.distanceToFrontWheel;
+            vehicle.place(prevWheel, prevWheel == null ? start : prevWheel.getEnd(), prevOffset);
 
-            PointContext currentEndOfConsist = vehicle.getBackPoint();
-            currentEnd = currentEndOfConsist.getEnd();
-            currentOffset = currentEndOfConsist.getDistanceFromEnd();
+            prevWheel = vehicle.getBackWheel();
+            prevVehicle = vehicle;
         }
     }
 
