@@ -2,6 +2,7 @@ package track;
 
 import java.awt.Color;
 
+import path.Path;
 import path.PathException;
 import windows.Viewport;
 
@@ -89,7 +90,7 @@ public class StraightTrack extends BasicTrack {
     
             double direction = Point.add(end.getAng(), Math.PI); // 180 deg away
             return new PointContext(end.getLoc(), direction, distance, this, end);
-        } else if (previousPivot.getTrack() == this) {
+        } else if (previousPivot.getTrack() == this || Path.findPath(this, previousPivot.getTrack()).isStraight()) {
             
             // almost as simple!
             double calcLength = Point.findDistance(previousPivot, pathFrom(end).getLoc());
@@ -104,7 +105,7 @@ public class StraightTrack extends BasicTrack {
             }
 
             double direction = Point.add(end.getAng(), Math.PI); // 180 deg away
-            return new PointContext(end.getLoc(), direction, distance, this, end);
+            return new PointContext(previousPivot, direction, distance, this, end);
         } else 
         // TODO handle a string of straight track maybe?
         {

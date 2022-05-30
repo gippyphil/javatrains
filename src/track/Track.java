@@ -44,4 +44,5 @@ public abstract class Track {
      * @throws TrackException if start is not one of the ends in this track
      */
     public abstract PointContext getPointFrom (PointContext previousPivot, TrackEnd start, double distance) throws PathException, TrackException;
+
 }

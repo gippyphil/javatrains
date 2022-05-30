@@ -67,15 +67,15 @@ public class TestWindow extends JFrame {
         consists = new ArrayList<>();
 
 
-        pieces.add(StraightTrack.create(new Point(0, 0), new Point(0, 90)));
+        pieces.add(StraightTrack.create(new Point(0, -90), new Point(0, 90)));
         pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 30));
         pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 50));
         pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 50, Math.toRadians(10)));
         pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 100, Math.PI / 3));
         pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 70, Math.PI * 0.75));
 
-        Consist test = Consist.createDebugConsist(1, false);
-        test.place(pieces.get(0).getEnd(0), 18);
+        Consist test = Consist.createDebugConsist(5, false);
+        test.place(pieces.get(0).getEnd(0), 90);
 
         consists.add(test);
 
