@@ -9,7 +9,7 @@ public abstract class BasicTrack extends Track {
 
     @Override
     public String toString () {
-        return String.format("%s {%s -> %s (%1.3fm)}", this.getClass().getCanonicalName(), ends.get(0), ends.get(1), getLength());
+        return String.format("%03d:%s {%s -> %s (%1.3fm)}", id, this.getClass().getCanonicalName(), ends.get(0), ends.get(1), getLength());
     }
 
     public TrackEnd pathFrom (TrackEnd start) throws TrackException {
@@ -23,10 +23,10 @@ public abstract class BasicTrack extends Track {
     {
         for (TrackEnd end : ends)
         {
-            if (end.connectedEnd == null)
+            //if (end.connectedEnd == null)
                 end.render(v);
-            else if (end.id < end.connectedEnd.id)    
-                end.render(v);
+            //else if (end.id < end.connectedEnd.id)    
+            //    end.render(v);
         }
     }
 

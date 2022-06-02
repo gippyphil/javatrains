@@ -16,12 +16,14 @@ public class Viewport {
     protected double bottomLat = 0;
     protected int height;
     protected int width;
+    protected boolean showDebug;
 
     protected Graphics2D gfx;
 
-    public Viewport (int width, int height) {
+    public Viewport (int width, int height, boolean showDebug) {
         this.width = width;
         this.height = height;
+        this.showDebug = showDebug;
         this.leftLon = -(width / 2) / scale;
         this.bottomLat = -(height / 2) / scale;
     }
@@ -101,13 +103,13 @@ public class Viewport {
         double mouseLon = getLon(mouseWheelEvent.getX());
     
         if (mouseWheelEvent.getWheelRotation() < 0)
-            scale *= 1.1;
+            scale *= 1.3;
         else
-            scale *= (1.0 / 1.1);
+            scale *= (1.0 / 1.3);
         if (scale < 0.2)
             scale = 0.2d;
-        else if (scale > 10)
-            scale = 10.0d;
+        else if (scale > 20)
+            scale = 20.0d;
 
         leftLon = mouseLon - ((width / 2) / scale);
         bottomLat = mouseLat - ((height / 2) / scale);
@@ -154,6 +156,6 @@ System.out.format("New scale is %1.2f\n", scale);
     }
 
     public boolean showDebug() {
-        return true;
+        return this.showDebug;
     }
 }

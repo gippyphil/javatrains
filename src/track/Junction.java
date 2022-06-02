@@ -1,5 +1,7 @@
 package track;
 
+import java.util.List;
+
 import animation.AnimationListener;
 import path.PathException;
 
@@ -26,4 +28,21 @@ public abstract class Junction extends Track implements AnimationListener {
      * @return true if the junction is in the process of changing paths
      */
     public abstract boolean inTransition ();
+
+    /**
+     * Find the possible TrackEnds that connects to this start
+     * @param start The TrackEnd from this Track to start the path
+     * @return the other possible Ends reachable from start
+     * @throws TrackException if start is not one of the ends in this track
+     */
+    public abstract List<TrackEnd> pathsFrom (TrackEnd start) throws TrackException;
+
+    /**
+     * Return the junction track components that connects to this start
+     * @param start The TrackEnd from this Track to start the path
+     * @return the other possible Tracks connected to start
+     * @throws TrackException if start is not one of the ends in this track
+     */
+    public abstract List<BasicTrack> tracksFrom (TrackEnd start) throws TrackException;
+
 }

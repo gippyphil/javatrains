@@ -19,7 +19,7 @@ public class Vehicle implements AnimationListener {
 
     // TODO: physics stuff - weight, drag, etc
     public static final double WIDTH = 3.0d; // metres ... good enough
-    public static final double GAP = 1.0d; // metres between vehicles;
+    public static final double GAP = 0.66d; // metres between vehicles;
 
     // wheels are rotation points with the track, so a single axle or the centre point of a set of fixed axles (eg: a bogie)
     // a steam loco would have two 'wheels' for the front and rear driving wheels - the leading and trailing trucks don't affect
@@ -104,20 +104,20 @@ System.out.format("V%04d: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFrontW
         }
         backWheel = frontWheel.getTrack().getPointFrom(frontWheel, frontWheel.getEnd(), wheelbase);
 
-System.out.format("V%04d: %s %s == %1.1f (expected %1.1f)\n", id, frontWheel, backWheel, Point.findDistance(frontWheel, backWheel), wheelbase);
+//System.out.format("V%04d: %s %s == %1.1f (expected %1.1f)\n", id, frontWheel, backWheel, Point.findDistance(frontWheel, backWheel), wheelbase);
 
         angle = Point.findAngle(backWheel, frontWheel);
 
         frontPoint = new Point(frontWheel, angle, distanceToFrontWheel + Vehicle.GAP / 2);
         backPoint = new Point(backWheel, Point.reverse(angle), distanceToBackWheel + Vehicle.GAP / 2);
 
-        System.out.format("V%04d: %s %s == %1.1f\n", id, frontPoint, backPoint, Point.findDistance(frontPoint, backPoint));
+//System.out.format("V%04d: %s %s == %1.1f\n", id, frontPoint, backPoint, Point.findDistance(frontPoint, backPoint));
     }
 
     public void render(Viewport viewport)
     {
-        Point bodyStart = new Point(frontPoint, angle, Vehicle.GAP / 2);
-        Point bodyEnd = new Point(backPoint, angle, -Vehicle.GAP / 2);
+        Point bodyStart = new Point(frontPoint, angle, -Vehicle.GAP / 2);
+        Point bodyEnd = new Point(backPoint, angle, Vehicle.GAP / 2);
 
         Point corner1 = new Point(bodyStart, Point.add(angle, Math.PI / 2), WIDTH / 2);
         Point corner2 = new Point(bodyStart, Point.add(angle, -Math.PI / 2), WIDTH / 2);
@@ -128,9 +128,11 @@ System.out.format("V%04d: %s %s == %1.1f (expected %1.1f)\n", id, frontWheel, ba
         int yPoints[] = {viewport.getY(corner1), viewport.getY(corner2), viewport.getY(corner3), viewport.getY(corner4)};
 
 
-        viewport.getGraphics().setColor(id == 1 ? Color.PINK : Color.GRAY);
-        //viewport.getGraphics().fillPolygon(xPoints, yPoints, 4);
-        //viewport.getGraphics().setColor(Color.WHITE);
+        if (!viewport.showDebug()) {
+            viewport.getGraphics().setColor(Color.GRAY);
+            viewport.getGraphics().fillPolygon(xPoints, yPoints, 4);
+        }
+        viewport.getGraphics().setColor(Color.WHITE);
         viewport.getGraphics().drawPolygon(xPoints, yPoints, 4);
 
         // DEBUG ONLY!
@@ -143,6 +145,7 @@ System.out.format("V%04d: %s %s == %1.1f (expected %1.1f)\n", id, frontWheel, ba
             int gfxWheelbase = viewport.scaledInt(wheelbase);
             viewport.getGraphics().setColor(Color.GREEN);
             viewport.getGraphics().drawArc(x1 - 2, y1 - 2, 4, 4, 0, 360);
+            viewport.getGraphics().drawString("T" + frontWheel.getTrack().id, x1, y1 + 10);
             viewport.getGraphics().setColor(Color.RED);
             viewport.getGraphics().drawArc(x2 - 2, y2 - 2, 4, 4, 0, 360);
             

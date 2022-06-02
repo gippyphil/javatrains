@@ -89,5 +89,25 @@ public class Turnout extends Junction {
         // TODO Auto-generated method stub
         return null;
     }
+
+
+
+
+
+    @Override
+    public List<TrackEnd> pathsFrom(TrackEnd start) throws TrackException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+
+
+
+    @Override
+    public List<BasicTrack> tracksFrom(TrackEnd start) throws TrackException {
+        // TODO Auto-generated method stub
+        return null;
+    }
     
 }

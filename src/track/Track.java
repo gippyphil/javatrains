@@ -12,6 +12,13 @@ public abstract class Track {
 
     public static final double HORZ_CLEARANCE = 4.0; // metres? between tracks
 
+    private static  int nextID = 0; 
+    public int id;
+
+    protected Track () {
+        id = ++nextID;
+    }
+
     protected List<TrackEnd> ends = new ArrayList<>();
 
     public TrackEnd getEnd(int index) {
@@ -19,6 +26,10 @@ public abstract class Track {
     }
 
     public abstract double getLength ();
+
+    public List<TrackEnd> getEnds () {
+        return ends;
+    }
 
     /**
      * Find the other TrackEnd that connects to start

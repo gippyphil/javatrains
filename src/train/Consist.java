@@ -41,14 +41,14 @@ public class Consist {
     public static Consist createDebugConsist (int vehicleCount, boolean randomizeLengths)
     {
         double len = randomizeLengths ? 5 + (Math.random() * 15) : 12.0; // 40'
-        double offset = randomizeLengths ? 1 + (Math.random() * (len * 0.2)) : 2.0; // 7' from the end
+        double offset = randomizeLengths ? 1 + (Math.random() * (len * 0.2)) : 1.5; // 6' from the end
         Vehicle firstVehicle = new Vehicle(len, offset, offset);
         Consist test = new Consist("Debug Consist " + (nextID + 1), firstVehicle);
 
         for (int i = 1; i < vehicleCount; i++)
         {
             len = randomizeLengths ? 5 + (Math.random() * 15) : 12.0; // 40'
-            offset = randomizeLengths ? 1 + (Math.random() * (len * 0.2)) : 2.0; // 7' from the end
+            offset = randomizeLengths ? 1 + (Math.random() * (len * 0.2)) : 1.5; // 6' from the end
             Vehicle nextVehicle = new Vehicle(len, offset, offset);
             test.addVehicleBack(nextVehicle);
         }
@@ -89,8 +89,10 @@ public class Consist {
         PointContext prevWheel = null;
         Vehicle prevVehicle = null;
         for (Vehicle vehicle : vehicles) {
-            if (prevVehicle != null)
-                prevOffset = prevVehicle.distanceToBackWheel + vehicle.distanceToFrontWheel;
+            if (prevVehicle != null) {
+                prevOffset = prevVehicle.distanceToBackWheel + Vehicle.GAP + vehicle.distanceToFrontWheel;
+//System.out.format("%01d -> %01d: %1.2f\n", prevVehicle.id, vehicle.id, prevOffset);
+            }
             vehicle.place(prevWheel, prevWheel == null ? start : prevWheel.getEnd(), prevOffset);
 
             prevWheel = vehicle.getBackWheel();

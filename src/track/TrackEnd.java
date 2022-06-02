@@ -11,7 +11,7 @@ public class TrackEnd {
     private Point loc;
     private double ang;
     private Track parent;
-    protected int id;
+    public int id;
 
     protected TrackEnd connectedEnd;
 
@@ -61,29 +61,39 @@ public class TrackEnd {
 
     @Override
     public String toString () {
-        return String.format("%s@%1.3f\u00B0", getLoc().toString(), Math.toDegrees(getAng()));
+        return String.format("%04d: %s@%1.3f\u00B0", id, getLoc().toString(), Math.toDegrees(getAng()));
     }
 
     public void render (Viewport v)
     {
-        final int LEN = v.scaledInt(2);
-        final int x = v.getX(getLoc());
-        final int y = v.getY(getLoc());
+        if (v.showDebug()) {
+            final int LEN = v.scaledInt(5);
+            final int x = v.getX(getLoc());
+            final int y = v.getY(getLoc());
+    
+            double leftAng = Point.add(getAng(), Math.PI / 2);
+            double rightAng = Point.subtract(getAng(), Math.PI / 2);
 
-        double leftAng = Point.add(getAng(), Math.PI / 2);
-        double rightAng = Point.subtract(getAng(), Math.PI / 2);
+            int x1 = x + (int)Math.round(Math.sin(leftAng) * LEN);
+            int y1 = y - (int)Math.round(Math.cos(leftAng) * LEN);
 
-//System.out.format("%03d: Angle: %1.2f\n", id, Math.toDegrees(ang));
+            int x2 = x + (int)Math.round(Math.sin(rightAng) * LEN);
+            int y2 = y - (int)Math.round(Math.cos(rightAng) * LEN);
 
-        int x1 = x + (int)Math.round(Math.sin(leftAng) * LEN);
-        int y1 = y - (int)Math.round(Math.cos(leftAng) * LEN);
+            v.getGraphics().setColor(this.connectedEnd == null ? Color.RED : Color.GREEN);
+            v.getGraphics().drawString(String.format("%03d: %1.0f\u00B0 - %s", id, Math.toDegrees(ang), (this.connectedEnd == null ? "" : this.connectedEnd.parent.id)), x2, y2);
+            
+            v.getGraphics().setColor(Color.DARK_GRAY);
+            v.getGraphics().drawLine(x1, y1, x2, y2);
+        }
+    }
 
-        int x2 = x + (int)Math.round(Math.sin(rightAng) * LEN);
-        int y2 = y - (int)Math.round(Math.cos(rightAng) * LEN);
+    public TrackEnd getConnectedEnd() {
+        return connectedEnd;
+    }
 
-
-        v.getGraphics().setColor(Color.DARK_GRAY);
-        v.getGraphics().drawLine(x1, y1, x2, y2);
+    public Track getConnectedTrack() {
+        return connectedEnd != null ? connectedEnd.parent : null;
     }
 
 }

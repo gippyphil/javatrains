@@ -4,6 +4,8 @@ import windows.Viewport;
 
 import java.awt.Color;
 
+import path.PathException;
+
 public class CurvedTrack extends BasicTrack {
     
     public enum Direction { LEFT, RIGHT };
@@ -60,11 +62,6 @@ public class CurvedTrack extends BasicTrack {
         else // right
             gfxStartAngle = 180 - gfxStartAngle;
 
-//v.getGraphics().setColor(dir == Direction.LEFT ? Color.GREEN : Color.RED);
-//v.getGraphics().drawRect(x, y, v.scaledInt(radius * 2), v.scaledInt(radius * 2));
-//v.getGraphics().drawString(String.format("startAngle: %1.1f   gfxStartAngle: %d\u00B0", Math.toDegrees(startAngle), gfxStartAngle), x, y - 15);
-//v.getGraphics().drawArc(x + v.scaledInt(radius) - 10, y + v.scaledInt(radius) - 10, 20, 20, 0, 360);
-
         v.getGraphics().setColor(Color.GRAY);
             
         int gfxArcDegrees = (int)Math.round(Math.toDegrees(arcRadians));
@@ -74,49 +71,42 @@ public class CurvedTrack extends BasicTrack {
         if (v.showTwoRails()) {
             int x = v.getXPlus(pivotPoint, -radius, -Track.GAUGE / 2);// - v.scaledInt(radius);
             int y = v.getYPlus(pivotPoint, -radius, -Track.GAUGE / 2);// - v.scaledInt(radius);
-//v.getGraphics().setColor(Color.YELLOW);
-//v.getGraphics().drawRect(x, y, v.scaledInt(radius * 2 + Track.GAUGE), v.scaledInt(radius * 2 + Track.GAUGE));
             v.getGraphics().drawArc(x, y, v.scaledInt(radius * 2 + Track.GAUGE), v.scaledInt(radius * 2 + Track.GAUGE), gfxStartAngle, gfxArcDegrees);
+
             x = v.getXPlus(pivotPoint, -radius, Track.GAUGE / 2);// - v.scaledInt(radius);
             y = v.getYPlus(pivotPoint, -radius, Track.GAUGE / 2);// - v.scaledInt(radius);
-//v.getGraphics().setColor(Color.BLUE);
-//v.getGraphics().drawRect(x, y, v.scaledInt(radius * 2 - Track.GAUGE), v.scaledInt(radius * 2 - Track.GAUGE));
             v.getGraphics().drawArc(x, y, v.scaledInt(radius * 2 - Track.GAUGE), v.scaledInt(radius * 2 - Track.GAUGE), gfxStartAngle, gfxArcDegrees);
         }
         else {
-            //int x = v.getX(pivotPoint) - v.scaledInt(radius);
-            //int y = v.getY(pivotPoint) - v.scaledInt(radius);
             int x = v.getXPlus(pivotPoint, -radius);
             int y = v.getYPlus(pivotPoint, -radius);
-//v.getGraphics().setColor(Color.PINK);
+
             v.getGraphics().drawArc(x, y, v.scaledInt(radius * 2), v.scaledInt(radius * 2), gfxStartAngle, gfxArcDegrees);
         }
 
 
-        for (TrackEnd end : ends)
-        {
-//            if (end.connectedEnd == null)
-//                continue;
-
-            // draw a circle of 12m radius
-            double rad2 = 12.0d;
-
-            v.getGraphics().setColor(Color.CYAN);
-            v.drawArc(end.getLoc(), rad2, Point.add(end.getAng(), -Math.PI / 2), Math.PI * 2);
-            //v.getGraphics().setColor(Color.YELLOW);
-            //v.drawArc(pivotPoint, radius, 0, Math.PI * 2);
-
-            v.setColor(Color.ORANGE);
-            v.drawLine(pivotPoint, end.getLoc());
-
-            Point intersection = findIntersection(end, end.getLoc(), rad2);
-            if (intersection != null)
+        if (v.showDebug()) {
+            for (TrackEnd end : ends)
             {
-                v.setColor(end == ends.get(0) ? Color.GREEN : Color.RED);
-                v.drawLine(pivotPoint, intersection);
+                // draw a circle of 12m radius
+                double rad2 = 12.0d;
+
+                v.getGraphics().setColor(Color.CYAN);
+                v.drawArc(end.getLoc(), rad2, Point.add(end.getAng(), -Math.PI / 2), Math.PI * 2);
+                //v.getGraphics().setColor(Color.YELLOW);
+                //v.drawArc(pivotPoint, radius, 0, Math.PI * 2);
+
+                v.setColor(Color.ORANGE);
+                v.drawLine(pivotPoint, end.getLoc());
+
+                Point intersection = findIntersection(end, end.getLoc(), rad2);
+                if (intersection != null)
+                {
+                    v.setColor(end == ends.get(0) ? Color.GREEN : Color.RED);
+                    v.drawLine(pivotPoint, intersection);
+                }
             }
         }
-
         super.render(v);
     }
 
@@ -153,8 +143,26 @@ public class CurvedTrack extends BasicTrack {
 
 
     @Override
-    public PointContext getPointFrom (PointContext previousPivot, TrackEnd end, double distance) {
-        // TODO Auto-generated method stub
-        return null;
+    public PointContext getPointFrom (PointContext previousPivot, TrackEnd end, double distance) throws PathException, TrackException {
+
+        if (!ends.contains(end))
+            throw new TrackException(this, "Doesn't contain " + end);
+
+        // if we don't have a previous point, we need to find one distance from the end
+        if (previousPivot == null)
+        {
+System.out.println("Initial placement on T" + this.id);            
+            previousPivot = new PointContext(end.getLoc().getLat(), end.getLoc().getLon(), this, end);
+        }
+        
+        Point p = findIntersection(end, previousPivot, distance);
+        // not on this track ... maybe the next one?
+        if (p == null && pathFrom(end).getConnectedTrack() != null)
+        {
+System.out.format("Failed to find a point on T" + this.id);            
+            return pathFrom(end).getConnectedTrack().getPointFrom(previousPivot, pathFrom(end).connectedEnd, distance);
+        }
+
+        return new PointContext(p.lat, p.lon, this, end);
     }
 }
