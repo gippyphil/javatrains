@@ -97,6 +97,7 @@ System.out.format("V%04d: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFrontW
     {
         // TODO (reversed vehicles in consists??)
 
+        System.out.println("Placing front wheel...");            
         if (previousPoint == null) {
             // if we don't have a previous vehicle we can approximate
             frontWheel = start.getParent().getPointFrom(null, start, distance + Vehicle.GAP / 2 + distanceToFrontWheel);
@@ -104,6 +105,7 @@ System.out.format("V%04d: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFrontW
             // if we do have a previous position then we place the front wheel from that
             frontWheel = start.getParent().getPointFrom(previousPoint, start, distance);
         }
+        System.out.println("Placing back wheel...");            
         backWheel = frontWheel.getTrack().getPointFrom(frontWheel, frontWheel.getEnd(), wheelbase);
 
 System.out.format("V%04d: FW T%d @ {%1.1f, %1.1f} BW T%d @ {%1.1f, %1.1f}\n", id, frontWheel.getTrack().id, frontWheel.getLat(), frontWheel.getLon(), backWheel.getTrack().id, backWheel.getLat(), backWheel.getLon());
@@ -150,25 +152,27 @@ System.out.format("V%04d: FW T%d @ {%1.1f, %1.1f} BW T%d @ {%1.1f, %1.1f}\n", id
             viewport.getGraphics().drawString("T" + frontWheel.getTrack().id, x1, y1 + 10);
             viewport.getGraphics().setColor(Color.RED);
             viewport.getGraphics().drawArc(x2 - 2, y2 - 2, 4, 4, 0, 360);
+            viewport.getGraphics().drawString("T" + backWheel.getTrack().id, x2, y2 + 10);
             
             viewport.getGraphics().setColor(Color.YELLOW);
             viewport.getGraphics().drawArc(x1 - gfxWheelbase, y1 - gfxWheelbase, 2 * gfxWheelbase, 2 * gfxWheelbase, 0, 360);
+
+            try {
+                for (PointContext wheel : Arrays.asList(frontWheel, backWheel)) {
+                    if (!(wheel.getTrack() instanceof CurvedTrack))
+                        continue;
+                    viewport.setColor(Color.CYAN);
+                    viewport.drawLine(wheel, ((CurvedTrack)wheel.getTrack()).pivotPoint);
+                    String s = String.format("%1.1f < %1.1f < %1.1f", Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel.getEnd().getLoc())),
+                                                                      Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel)),
+                                                                      Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel.getTrack().pathFrom(wheel.getEnd()).getLoc())));
+                    viewport.setColor(Color.YELLOW);
+                    viewport.getGraphics().drawString(s, viewport.getX(wheel) + 10, viewport.getY(wheel));
+                }
+            } catch (TrackException tx) {
+                tx.printStackTrace();
+            }
         }
 
-        try {
-        for (PointContext wheel : Arrays.asList(frontWheel, backWheel)) {
-            if (!(wheel.getTrack() instanceof CurvedTrack))
-                continue;
-            viewport.setColor(Color.CYAN);
-            viewport.drawLine(wheel, ((CurvedTrack)wheel.getTrack()).pivotPoint);
-            String s = String.format("%1.1f < %1.1f < %1.1f", Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel.getEnd().getLoc())),
-                                                              Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel)),
-                                                              Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel.getTrack().pathFrom(wheel.getEnd()).getLoc())));
-            viewport.setColor(Color.YELLOW);
-            viewport.getGraphics().drawString(s, viewport.getX(wheel) + 10, viewport.getY(wheel));
-        }
-        } catch (TrackException tx) {
-            tx.printStackTrace();
-        }
     }
 }

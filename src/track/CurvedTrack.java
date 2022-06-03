@@ -85,7 +85,7 @@ public class CurvedTrack extends BasicTrack {
         }
 
 
-        if (v.showDebug()) {
+        if (v.showDebug() && false) {
             try
             {
                 for (TrackEnd end : ends)
@@ -138,24 +138,24 @@ public class CurvedTrack extends BasicTrack {
         double endAngle = Point.findAngle(pivotPoint, pathFrom(end).getLoc());
         PointContext result = null;
         if (dir == Direction.RIGHT ^ end == ends.get(1)) {
-            angle += resultAngle;
+            angle = Point.add(angle, resultAngle);
             result = new PointContext(pivotPoint, angle, radius, this, end);
-            if (startAngle <= resultAngle && resultAngle <= endAngle) {
-System.out.format("R T%d: %1.1f <= %1.1f <= %1.1f   TRUE\n", id, Math.toDegrees(startAngle), Math.toDegrees(resultAngle), Math.toDegrees(endAngle));        
+            if (startAngle <= angle && angle <= endAngle) {
+System.out.format("R T%d: %1.1f <= %1.1f <= %1.1f   TRUE\n", id, Math.toDegrees(startAngle), Math.toDegrees(angle), Math.toDegrees(endAngle));        
                 return result;
             } else {
-System.out.format("R T%d: %1.1f <= %1.1f <= %1.1f   FALSE\n", id, Math.toDegrees(startAngle), Math.toDegrees(resultAngle), Math.toDegrees(endAngle));        
+System.out.format("R T%d: %1.1f <= %1.1f <= %1.1f   FALSE\n", id, Math.toDegrees(startAngle), Math.toDegrees(angle), Math.toDegrees(endAngle));        
                 return null;
             }
         }
         else {
             angle -= resultAngle;
             result = new PointContext(pivotPoint, -angle, radius, this, end);
-            if (startAngle >= resultAngle && resultAngle >= endAngle) {
-System.out.format("L T%d: %1.1f >= %1.1f >= %1.1f   TRUE\n", id, Math.toDegrees(startAngle), Math.toDegrees(resultAngle), Math.toDegrees(endAngle));        
+            if (startAngle >= Point.subtract(-angle, 0) && Point.subtract(-angle, 0) >= endAngle) {
+System.out.format("L T%d: %1.1f >= %1.1f >= %1.1f   TRUE\n", id, Math.toDegrees(startAngle), Math.toDegrees(angle), Math.toDegrees(endAngle));        
                 return result;
             } else {
-System.out.format("L T%d: %1.1f >= %1.1f >= %1.1f   FALSE\n", id, Math.toDegrees(startAngle), Math.toDegrees(resultAngle), Math.toDegrees(endAngle));        
+System.out.format("L T%d: %1.1f >= %1.1f >= %1.1f   FALSE\n", id, Math.toDegrees(startAngle), Math.toDegrees(angle), Math.toDegrees(endAngle));        
                 return null;
             }
         }

@@ -35,7 +35,7 @@ public class TestWindow extends JFrame {
 
         setSize(2000, 1500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        viewport = new Viewport(2000, 1500, true);
+        viewport = new Viewport(2000, 1500, false);
 
         addMouseWheelListener((mouseWheelEvent) -> {
             viewport.zoom(mouseWheelEvent);
@@ -80,22 +80,23 @@ public class TestWindow extends JFrame {
         pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 100, Math.PI / 3));
         pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 70, Math.PI * 0.75));
 */
+/*
 pieces.add(StraightTrack.create(new Point(0, 0), new Point(0, 30)));
 pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 100, Math.PI / 3));
 pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 100, Math.PI / 3));
-
-/*        
+*/
+        
         pieces.add(StraightTrack.create(new Point(0, 0), new Point(5, 5)));
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 20; i++)
         {
             switch ((int)(Math.ceil(Math.random() * 2)))
             {
                 case 1:
-                    pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 80 + (Math.random() * 80), Math.PI * (Math.random() / 4)));
+                    pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 80 + (Math.random() * 80), Math.PI * 0.05 + (Math.random() / 3)));
                     break;
 
                 default:
-                    pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 80 + (Math.random() * 80), Math.PI * (Math.random() / 4)));
+                    pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 80 + (Math.random() * 80), Math.PI * 0.05 + (Math.random() / 3)));
                     break;
 
                 //default:
@@ -104,8 +105,8 @@ pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTra
             }
         }
 //*/
-        Consist test1 = Consist.createDebugConsist(1, false);
-        test1.place(pieces.get(1).getEnd(0), 97);
+        Consist test1 = Consist.createDebugConsist(20, false);
+        test1.place(pieces.get((int)Math.floor(Math.random() * pieces.size() * 0.5)).getEnd(0), 1);
         consists.add(test1);
 
         repaint();
