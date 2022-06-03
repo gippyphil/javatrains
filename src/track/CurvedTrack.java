@@ -10,7 +10,7 @@ public class CurvedTrack extends BasicTrack {
     
     public enum Direction { LEFT, RIGHT };
 
-    protected Point pivotPoint;
+    public Point pivotPoint;
     protected double length;
     protected double radius;
     protected double arcRadians;
@@ -86,31 +86,36 @@ public class CurvedTrack extends BasicTrack {
 
 
         if (v.showDebug()) {
-            for (TrackEnd end : ends)
+            try
             {
-                // draw a circle of 12m radius
-                double rad2 = 12.0d;
-
-                v.getGraphics().setColor(Color.CYAN);
-                v.drawArc(end.getLoc(), rad2, Point.add(end.getAng(), -Math.PI / 2), Math.PI * 2);
-                //v.getGraphics().setColor(Color.YELLOW);
-                //v.drawArc(pivotPoint, radius, 0, Math.PI * 2);
-
-                v.setColor(Color.ORANGE);
-                v.drawLine(pivotPoint, end.getLoc());
-
-                Point intersection = findIntersection(end, end.getLoc(), rad2);
-                if (intersection != null)
+                for (TrackEnd end : ends)
                 {
-                    v.setColor(end == ends.get(0) ? Color.GREEN : Color.RED);
-                    v.drawLine(pivotPoint, intersection);
+                    // draw a circle of 12m radius
+                    double rad2 = 12.0d;
+
+                    v.getGraphics().setColor(Color.CYAN);
+                    v.drawArc(end.getLoc(), rad2, Point.add(end.getAng(), -Math.PI / 2), Math.PI * 2);
+                    //v.getGraphics().setColor(Color.YELLOW);
+                    //v.drawArc(pivotPoint, radius, 0, Math.PI * 2);
+
+                    v.setColor(Color.ORANGE);
+                    v.drawLine(pivotPoint, end.getLoc());
+
+                    Point intersection = findIntersection(end, end.getLoc(), rad2);
+                    if (intersection != null)
+                    {
+                        v.setColor(end == ends.get(0) ? Color.GREEN : Color.RED);
+                        v.drawLine(pivotPoint, intersection);
+                    }
                 }
+            } catch (TrackException ex) {
+                ex.printStackTrace();
             }
         }
         super.render(v);
     }
 
-    public Point findIntersection (TrackEnd end, Point pivotPoint2, double radius2) {
+    public PointContext findIntersection (TrackEnd end, Point pivotPoint2, double radius2) throws TrackException {
         // three sided triangle where sides:
         //   A = distance between this.pivotPoint and pivotPoint2
         //   B = this.radius
@@ -123,20 +128,36 @@ public class CurvedTrack extends BasicTrack {
         double CosA = (B*B + A*A - C*C) / (2*B*A);
         double angle = Math.acos(CosA);
 
+        double resultAngle = Point.findAngle(pivotPoint, pivotPoint2);
         // this is impossible
         if (Math.abs(angle) > Math.abs(arcRadians))
             return null;
 
         // measuring from the "other" end has the effect of turning a left turn into a right
-        if (dir == Direction.RIGHT ^ end == ends.get(1))
-        {
-            angle += Point.findAngle(pivotPoint, pivotPoint2);
-            return new Point(pivotPoint, angle, radius);
+        double startAngle = Point.findAngle(pivotPoint, end.getLoc());
+        double endAngle = Point.findAngle(pivotPoint, pathFrom(end).getLoc());
+        PointContext result = null;
+        if (dir == Direction.RIGHT ^ end == ends.get(1)) {
+            angle += resultAngle;
+            result = new PointContext(pivotPoint, angle, radius, this, end);
+            if (startAngle <= resultAngle && resultAngle <= endAngle) {
+System.out.format("R T%d: %1.1f <= %1.1f <= %1.1f   TRUE\n", id, Math.toDegrees(startAngle), Math.toDegrees(resultAngle), Math.toDegrees(endAngle));        
+                return result;
+            } else {
+System.out.format("R T%d: %1.1f <= %1.1f <= %1.1f   FALSE\n", id, Math.toDegrees(startAngle), Math.toDegrees(resultAngle), Math.toDegrees(endAngle));        
+                return null;
+            }
         }
-        else
-        {
-            angle -= Point.findAngle(pivotPoint, pivotPoint2);
-            return new Point(pivotPoint, -angle, radius);
+        else {
+            angle -= resultAngle;
+            result = new PointContext(pivotPoint, -angle, radius, this, end);
+            if (startAngle >= resultAngle && resultAngle >= endAngle) {
+System.out.format("L T%d: %1.1f >= %1.1f >= %1.1f   TRUE\n", id, Math.toDegrees(startAngle), Math.toDegrees(resultAngle), Math.toDegrees(endAngle));        
+                return result;
+            } else {
+System.out.format("L T%d: %1.1f >= %1.1f >= %1.1f   FALSE\n", id, Math.toDegrees(startAngle), Math.toDegrees(resultAngle), Math.toDegrees(endAngle));        
+                return null;
+            }
         }
     }
 
@@ -155,14 +176,16 @@ System.out.println("Initial placement on T" + this.id);
             previousPivot = new PointContext(end.getLoc().getLat(), end.getLoc().getLon(), this, end);
         }
         
-        Point p = findIntersection(end, previousPivot, distance);
+        PointContext pc = findIntersection(end, previousPivot, distance);
+        if (pc != null) {
+            return pc;
         // not on this track ... maybe the next one?
-        if (p == null && pathFrom(end).getConnectedTrack() != null)
-        {
-System.out.format("Failed to find a point on T" + this.id);            
+        } else if (pathFrom(end).getConnectedTrack() != null) {
+System.out.println("Failed to find a point on T" + this.id + ", trying T" + pathFrom(end).getConnectedTrack().id);            
             return pathFrom(end).getConnectedTrack().getPointFrom(previousPivot, pathFrom(end).connectedEnd, distance);
         }
-
-        return new PointContext(p.lat, p.lon, this, end);
+        else {
+            throw new PathException(this, "Vehicle does not fit before of track reached");
+        }
     }
 }

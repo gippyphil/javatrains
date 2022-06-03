@@ -2,6 +2,7 @@ package train;
 
 import animation.AnimationListener;
 import path.PathException;
+import track.CurvedTrack;
 import track.Point;
 import track.PointContext;
 import track.Track;
@@ -10,6 +11,7 @@ import track.TrackException;
 import windows.Viewport;
 
 import java.awt.Color;
+import java.util.Arrays;
 
 // TODO is a wagon a subclass?
 // TODO loco is definitely a subclass 
@@ -104,7 +106,7 @@ System.out.format("V%04d: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFrontW
         }
         backWheel = frontWheel.getTrack().getPointFrom(frontWheel, frontWheel.getEnd(), wheelbase);
 
-//System.out.format("V%04d: %s %s == %1.1f (expected %1.1f)\n", id, frontWheel, backWheel, Point.findDistance(frontWheel, backWheel), wheelbase);
+System.out.format("V%04d: FW T%d @ {%1.1f, %1.1f} BW T%d @ {%1.1f, %1.1f}\n", id, frontWheel.getTrack().id, frontWheel.getLat(), frontWheel.getLon(), backWheel.getTrack().id, backWheel.getLat(), backWheel.getLon());
 
         angle = Point.findAngle(backWheel, frontWheel);
 
@@ -151,6 +153,22 @@ System.out.format("V%04d: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFrontW
             
             viewport.getGraphics().setColor(Color.YELLOW);
             viewport.getGraphics().drawArc(x1 - gfxWheelbase, y1 - gfxWheelbase, 2 * gfxWheelbase, 2 * gfxWheelbase, 0, 360);
+        }
+
+        try {
+        for (PointContext wheel : Arrays.asList(frontWheel, backWheel)) {
+            if (!(wheel.getTrack() instanceof CurvedTrack))
+                continue;
+            viewport.setColor(Color.CYAN);
+            viewport.drawLine(wheel, ((CurvedTrack)wheel.getTrack()).pivotPoint);
+            String s = String.format("%1.1f < %1.1f < %1.1f", Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel.getEnd().getLoc())),
+                                                              Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel)),
+                                                              Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel.getTrack().pathFrom(wheel.getEnd()).getLoc())));
+            viewport.setColor(Color.YELLOW);
+            viewport.getGraphics().drawString(s, viewport.getX(wheel) + 10, viewport.getY(wheel));
+        }
+        } catch (TrackException tx) {
+            tx.printStackTrace();
         }
     }
 }

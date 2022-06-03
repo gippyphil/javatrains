@@ -80,10 +80,13 @@ public class TestWindow extends JFrame {
         pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 100, Math.PI / 3));
         pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 70, Math.PI * 0.75));
 */
+pieces.add(StraightTrack.create(new Point(0, 0), new Point(0, 30)));
+pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 100, Math.PI / 3));
+pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 100, Math.PI / 3));
 
-        
+/*        
         pieces.add(StraightTrack.create(new Point(0, 0), new Point(5, 5)));
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 10; i++)
         {
             switch ((int)(Math.ceil(Math.random() * 2)))
             {
@@ -101,8 +104,8 @@ public class TestWindow extends JFrame {
             }
         }
 //*/
-        Consist test1 = Consist.createDebugConsist(20, false);
-        test1.place(pieces.get((int)Math.floor(Math.random() * pieces.size())).getEnd(0), 1);
+        Consist test1 = Consist.createDebugConsist(1, false);
+        test1.place(pieces.get(1).getEnd(0), 97);
         consists.add(test1);
 
         repaint();

@@ -26,7 +26,7 @@ public class Point {
 
     public static double findAngle (Point a, Point b)
     {
-        return Math.atan2(b.lon - a.lon, b.lat - a.lat);
+        return subtract(Math.atan2(b.lon - a.lon, b.lat - a.lat), 0);
     }
 
     public static double findDistance (Point start, Point end) {
@@ -57,7 +57,7 @@ public class Point {
     public static double subtract (double... angles) {
         double result = angles[0];
         for (int i = 1; i < angles.length; i++)
-            result = ((result - angles[i]) + 2 * Math.PI);
+            result = ((result - angles[i]) + 2 * Math.PI) % (2 * Math.PI);
         return result;
     }
 
