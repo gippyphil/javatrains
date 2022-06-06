@@ -7,8 +7,6 @@ import java.awt.Color;
 import path.PathException;
 
 public class CurvedTrack extends BasicTrack {
-    
-    public enum Direction { LEFT, RIGHT };
 
     public Point pivotPoint;
     protected double length;
