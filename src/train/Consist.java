@@ -40,14 +40,14 @@ public class Consist {
 
     public static Consist createDebugConsist (int vehicleCount, boolean randomizeLengths)
     {
-        double len = randomizeLengths ? 5 + (Math.random() * 15) : 12.0; // 40'
+        double len = randomizeLengths ? 5 + (Math.random() * 15) : 19.0; // 60'
         double offset = randomizeLengths ? 1 + (Math.random() * (len * 0.2)) : 1.5; // 6' from the end
         Vehicle firstVehicle = new Vehicle(len, offset, offset);
         Consist test = new Consist("Debug Consist " + (nextID + 1), firstVehicle);
 
         for (int i = 1; i < vehicleCount; i++)
         {
-            len = randomizeLengths ? 5 + (Math.random() * 15) : 12.0; // 40'
+            len = randomizeLengths ? 5 + (Math.random() * 15) : 19.0; // 60'
             offset = randomizeLengths ? 1 + (Math.random() * (len * 0.2)) : 1.5; // 6' from the end
             Vehicle nextVehicle = new Vehicle(len, offset, offset);
             test.addVehicleBack(nextVehicle);

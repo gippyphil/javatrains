@@ -128,6 +128,11 @@ public class CurvedTrack extends BasicTrack {
         double CosA = (B*B + A*A - C*C) / (2*B*A);
         double angle = Math.acos(CosA);
 
+        if (Double.isNaN(angle))
+        {
+            return null;
+        }
+
         double resultAngle = Point.findAngle(pivotPoint, pivotPoint2);
         // this is impossible
         if (Math.abs(angle) > Math.abs(arcRadians))
@@ -152,10 +157,10 @@ System.out.format("R T%d: %1.1f <= %1.1f <= %1.1f   FALSE\n", id, Math.toDegrees
             angle -= resultAngle;
             result = new PointContext(pivotPoint, -angle, radius, this, end);
             if (startAngle >= Point.subtract(-angle, 0) && Point.subtract(-angle, 0) >= endAngle) {
-System.out.format("L T%d: %1.1f >= %1.1f >= %1.1f   TRUE\n", id, Math.toDegrees(startAngle), Math.toDegrees(angle), Math.toDegrees(endAngle));        
+System.out.format("L T%d: %1.1f >= %1.1f >= %1.1f   TRUE\n", id, Math.toDegrees(startAngle), Math.toDegrees(Point.subtract(-angle, 0)), Math.toDegrees(endAngle));        
                 return result;
             } else {
-System.out.format("L T%d: %1.1f >= %1.1f >= %1.1f   FALSE\n", id, Math.toDegrees(startAngle), Math.toDegrees(angle), Math.toDegrees(endAngle));        
+System.out.format("L T%d: %1.1f >= %1.1f >= %1.1f   FALSE\n", id, Math.toDegrees(startAngle), Math.toDegrees(Point.subtract(-angle, 0)), Math.toDegrees(endAngle));        
                 return null;
             }
         }

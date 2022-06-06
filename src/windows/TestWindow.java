@@ -35,7 +35,7 @@ public class TestWindow extends JFrame {
 
         setSize(2000, 1500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        viewport = new Viewport(2000, 1500, false);
+        viewport = new Viewport(2000, 1500, true);
 
         addMouseWheelListener((mouseWheelEvent) -> {
             viewport.zoom(mouseWheelEvent);
@@ -80,23 +80,18 @@ public class TestWindow extends JFrame {
         pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 100, Math.PI / 3));
         pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 70, Math.PI * 0.75));
 */
-/*
-pieces.add(StraightTrack.create(new Point(0, 0), new Point(0, 30)));
-pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 100, Math.PI / 3));
-pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 100, Math.PI / 3));
-*/
-        
+/*      
         pieces.add(StraightTrack.create(new Point(0, 0), new Point(5, 5)));
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 100; i++)
         {
             switch ((int)(Math.ceil(Math.random() * 2)))
             {
                 case 1:
-                    pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 80 + (Math.random() * 80), Math.PI * 0.05 + (Math.random() / 3)));
+                    pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 60 + (Math.random() * 80), Math.PI * 0.05 + (Math.random() / 2)));
                     break;
 
                 default:
-                    pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 80 + (Math.random() * 80), Math.PI * 0.05 + (Math.random() / 3)));
+                    pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 60 + (Math.random() * 80), Math.PI * 0.05 + (Math.random() / 2)));
                     break;
 
                 //default:
@@ -105,9 +100,28 @@ pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTra
             }
         }
 //*/
-        Consist test1 = Consist.createDebugConsist(20, false);
-        test1.place(pieces.get((int)Math.floor(Math.random() * pieces.size() * 0.5)).getEnd(0), 1);
+
+        pieces.add(StraightTrack.create(new Point(0, 0), new Point(20, 0)));
+        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 70, Math.PI / 4));
+
+        Consist test1 = Consist.createDebugConsist(3, false);
+        test1.place(pieces.get(0).getEnd(0), 1);
         consists.add(test1);
+
+        pieces.add(StraightTrack.create(new Point(0, -30), new Point(20, -30)));
+        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 70, Math.PI / 4));
+
+        Consist test2 = Consist.createDebugConsist(3, false);
+        test2.place(pieces.get(2).getEnd(0), 1);
+        consists.add(test2);
+
+        pieces.add(StraightTrack.create(new Point(-10, -30), new Point(-12, -30)));
+        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 70, Math.PI / 4));
+        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 20));
+
+        Consist test3 = Consist.createDebugConsist(3, false);
+        test3.place(pieces.get(5).getEnd(0), 0);
+        consists.add(test3);
 
         repaint();
         setVisible(true);
