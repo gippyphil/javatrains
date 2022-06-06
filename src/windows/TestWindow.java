@@ -66,20 +66,28 @@ public class TestWindow extends JFrame {
         pieces = new ArrayList<>();
         consists = new ArrayList<>();
 
+        Turnout lastTurnout, lastTurnout2 = null;
         pieces.add(StraightTrack.create(new Point(5, 0), new Point(10, 0)));
-        pieces.add(Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
+        pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
 
         pieces.add(StraightTrack.create(new Point(5, 10), new Point(10, 10)));
-        pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
+        pieces.add(lastTurnout = Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
 
         pieces.add(StraightTrack.create(new Point(5, 20), new Point(10, 20)));
-        pieces.add(Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_MEDIUM));
+        pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_MEDIUM));
 
         pieces.add(StraightTrack.create(new Point(5, 30), new Point(10, 30)));
-        pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_MEDIUM));
-        Track last = pieces.get(pieces.size() - 1);
-        pieces.add(Turnout.createRight(last.getEnd(1), Turnout.RADIUS_MEDIUM));
-        pieces.add(Turnout.createRight(last.getEnd(2), Turnout.RADIUS_MEDIUM));
+        pieces.add(lastTurnout = Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_MEDIUM));
+
+        pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(1), Turnout.RADIUS_MEDIUM));
+        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, Math.toRadians(25)));
+        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
+        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(2), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, Math.toRadians(12.5)));
+        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
+        pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(2), Turnout.RADIUS_MEDIUM));
+        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, Math.toRadians(12.5)));
+        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
+        pieces.add(StraightTrack.create(lastTurnout2.getEnd(2), 200));
 
 
         pieces.add(StraightTrack.create(new Point(5, 40), new Point(10, 40)));

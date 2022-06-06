@@ -59,7 +59,9 @@ public class Turnout extends Junction {
             t.mainRoute = CurvedTrack.create(end, dir, radiusMain, clearanceArcRadians);
         }
         t.components.add(t.mainRoute);
-        t.ends.add(t.mainRoute.getEnd(1));
+        t.ends.add(0, t.mainRoute.getEnd(1));
+        // set the turnout to not diverge
+        t.selectedRoute = t.mainRoute;
         //t.mainRoute.getEnd(1).parent = t;
         // disconnect the previous track to avoid errors
         end.connectedEnd = null;
@@ -70,7 +72,8 @@ public class Turnout extends Junction {
         t.entry = TrackEnd.createAttached(t, end);
         t.ends.add(0, t.entry);
 
-        // TODO: work out the End thing (connecting to straight vs curve)
+        for (TrackEnd tEnd : t.ends)
+            tEnd.setParent(t);
 
         //StraightTrack straight = StraightTrack.create(end, length)
 
@@ -117,42 +120,42 @@ public class Turnout extends Junction {
 
     @Override
     public TrackEnd pathFrom(TrackEnd start) throws TrackException {
-        // TODO Auto-generated method stub
-        return null;
+        if (!ends.contains(start))
+            throw new TrackException(String.format("%s does not contain end %s", this, start));
+        
+        if (start == ends.get(0)) {
+            if (selectedRoute != null)
+                return selectedRoute.getEnd(1);
+            else
+                throw new TrackException(this, "Turnout does not have a route selected!");
+        }
+        // so we must have one of the component ends
+        for (BasicTrack comp : components) {
+            if (comp.getEnd(1) == start)
+                return ends.get(0);
+        }
+
+        throw new TrackException(this, "Something has gone wrong with this turnouts ends and components: no path found from " + start);
     }
-
-
-
-
 
     @Override
     public void render(Viewport v) {
         components.forEach((component) -> component.render(v));        
     }
 
-
-
-
-
     @Override
     public PointContext getPointFrom (PointContext previousPoint, TrackEnd start, double distance) throws PathException, TrackException {
-        // TODO Auto-generated method stub
-        return null;
+        if (selectedRoute != null)
+            return selectedRoute.getPointFrom(previousPoint, start, distance);
+        else
+            throw new TrackException(this, "Turnout does not have a route selected!");
     }
-
-
-
-
 
     @Override
     public List<TrackEnd> pathsFrom(TrackEnd start) throws TrackException {
         // TODO Auto-generated method stub
         return null;
     }
-
-
-
-
 
     @Override
     public List<BasicTrack> tracksFrom(TrackEnd start) throws TrackException {

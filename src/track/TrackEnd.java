@@ -23,6 +23,15 @@ public class TrackEnd {
         return parent;
     }
 
+    /**
+     * The only time a parent would change would be for a junction
+     * @param parent
+     * @return
+     */
+    public void setParent(Junction junc) {
+        parent = junc;
+    }
+
     public Point getLoc() {
         return loc;
     }
