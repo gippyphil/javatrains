@@ -1,11 +1,18 @@
 package track;
 
+import java.awt.Color;
+
+import org.w3c.dom.Text;
+
 import windows.Viewport;
 
 /**
  * BasicTrack always has a single path between two ends
  */
 public abstract class BasicTrack extends Track {
+
+    // set when this basic track is a component of a junction, etc
+    protected Track parent;
 
     @Override
     public String toString () {
@@ -21,12 +28,19 @@ public abstract class BasicTrack extends Track {
 
     public void render (Viewport v)
     {
-        for (TrackEnd end : ends)
-        {
-            //if (end.connectedEnd == null)
-                end.render(v);
-            //else if (end.id < end.connectedEnd.id)    
-            //    end.render(v);
+        if (v.showDebug()) {
+            if (parent == null) {
+                for (TrackEnd end : ends)
+                {
+                    //if (end.connectedEnd == null)
+                        end.render(v);
+                    //else if (end.id < end.connectedEnd.id)    
+                    //    end.render(v);
+                }
+            }
+            Point textPoint = new Point(ends.get(1).getLoc(), Point.add(ends.get(1).getAng(), Math.PI * 0.75), Track.GAUGE * 2);
+            v.setColor(Color.LIGHT_GRAY);
+            v.getGraphics().drawString("T" + id, v.getX(textPoint), v.getY(textPoint));
         }
     }
 

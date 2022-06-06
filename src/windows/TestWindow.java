@@ -3,10 +3,12 @@ package windows;
 import javax.swing.JFrame;
 import javax.swing.event.MouseInputAdapter;
 
+import path.PathException;
 import track.CurvedTrack;
 import track.Point;
 import track.StraightTrack;
 import track.Track;
+import track.TrackException;
 import track.Turnout;
 import train.Consist;
 
@@ -62,46 +64,10 @@ public class TestWindow extends JFrame {
         });
 
 
-
+    
         pieces = new ArrayList<>();
         consists = new ArrayList<>();
-
-        Turnout lastTurnout, lastTurnout2 = null;
-        pieces.add(StraightTrack.create(new Point(5, 0), new Point(10, 0)));
-        pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
-
-        pieces.add(StraightTrack.create(new Point(5, 10), new Point(10, 10)));
-        pieces.add(lastTurnout = Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
-
-        pieces.add(StraightTrack.create(new Point(5, 20), new Point(10, 20)));
-        pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_MEDIUM));
-
-        pieces.add(StraightTrack.create(new Point(5, 30), new Point(10, 30)));
-        pieces.add(lastTurnout = Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_MEDIUM));
-
-        pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(1), Turnout.RADIUS_MEDIUM));
-        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, Math.toRadians(25)));
-        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
-        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(2), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, Math.toRadians(12.5)));
-        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
-        pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(2), Turnout.RADIUS_MEDIUM));
-        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, Math.toRadians(12.5)));
-        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
-        pieces.add(StraightTrack.create(lastTurnout2.getEnd(2), 200));
-
-
-        pieces.add(StraightTrack.create(new Point(5, 40), new Point(10, 40)));
-        pieces.add(Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_SLOW));
-
-        pieces.add(StraightTrack.create(new Point(5, 50), new Point(10, 50)));
-        pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_SLOW));
-
-
-        pieces.add(StraightTrack.create(new Point(-5, 0), new Point(-10, 0)));
-        pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
-
-        pieces.add(StraightTrack.create(new Point(-5, 10), new Point(-10, 10)));
-        pieces.add(Turnout.create(pieces.get(pieces.size() - 1).getEnd(1), Track.Direction.LEFT, Turnout.RADIUS_FAST, Turnout.RADIUS_MEDIUM));
+        testTurnouts();
 
 
 /*
@@ -153,7 +119,7 @@ public class TestWindow extends JFrame {
 
     @Override
     public void paint (Graphics gfx) {
-System.out.println("Rendering");
+//System.out.println("Rendering");
         gfx.setColor(Color.BLACK);
         Dimension size = getSize();
         gfx.fillRect(0, 0, size.width, size.height);
@@ -166,6 +132,53 @@ System.out.println("Rendering");
 
             consists.forEach((consist) -> consist.render(viewport));
         }
+    }
+
+
+    private void testTurnouts () throws TrackException, PathException {
+        Turnout lastTurnout, lastTurnout2 = null;
+        StraightTrack placement = null;
+/*
+        pieces.add(StraightTrack.create(new Point(5, 0), new Point(10, 0)));
+        pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
+
+        pieces.add(StraightTrack.create(new Point(5, 10), new Point(10, 10)));
+        pieces.add(lastTurnout = Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
+
+        pieces.add(StraightTrack.create(new Point(5, 20), new Point(10, 20)));
+        pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_MEDIUM));
+*/
+        pieces.add(placement = StraightTrack.create(new Point(-190, 30), new Point(10, 30)));
+        pieces.add(lastTurnout = Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_MEDIUM));
+
+        pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(1), Turnout.RADIUS_MEDIUM));
+        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, Math.toRadians(25)));
+        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
+        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(2), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, Math.toRadians(12.5)));
+        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
+        pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(2), Turnout.RADIUS_MEDIUM));
+        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, Math.toRadians(12.5)));
+        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
+        pieces.add(StraightTrack.create(lastTurnout2.getEnd(2), 200));
+
+/*
+        pieces.add(StraightTrack.create(new Point(5, 40), new Point(10, 40)));
+        pieces.add(Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_SLOW));
+
+        pieces.add(StraightTrack.create(new Point(5, 50), new Point(10, 50)));
+        pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_SLOW));
+
+
+        pieces.add(StraightTrack.create(new Point(-5, 0), new Point(-10, 0)));
+        pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
+
+        pieces.add(StraightTrack.create(new Point(-5, 10), new Point(-10, 10)));
+        pieces.add(Turnout.create(pieces.get(pieces.size() - 1).getEnd(1), Track.Direction.LEFT, Turnout.RADIUS_FAST, Turnout.RADIUS_MEDIUM));
+*/
+        Consist test1 = Consist.createDebugConsist(3, false);
+        test1.place(placement.getEnd(0), placement.getLength() - 40);
+        consists.add(test1);
+
     }
 
 }

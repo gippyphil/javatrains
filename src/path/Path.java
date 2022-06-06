@@ -79,6 +79,10 @@ System.out.format("%d has found a solution!", possiblePath.id);
                 } else { // unknown, bail!
                     throw new TrackException(next, "Unknown track type for pathing");
                 }
+
+                // should we discard this path for some reason (eg: circular path)
+                if (possiblePath.isDiscarded())
+                    discardList.add(possiblePath);
             }
             possiblePaths.removeAll(discardList);
             possiblePaths.addAll(addList);
