@@ -7,6 +7,7 @@ import track.CurvedTrack;
 import track.Point;
 import track.StraightTrack;
 import track.Track;
+import track.Turnout;
 import train.Consist;
 
 import java.awt.Color;
@@ -62,9 +63,38 @@ public class TestWindow extends JFrame {
 
 
 
-
         pieces = new ArrayList<>();
         consists = new ArrayList<>();
+
+        pieces.add(StraightTrack.create(new Point(5, 0), new Point(10, 0)));
+        pieces.add(Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
+
+        pieces.add(StraightTrack.create(new Point(5, 10), new Point(10, 10)));
+        pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
+
+        pieces.add(StraightTrack.create(new Point(5, 20), new Point(10, 20)));
+        pieces.add(Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_MEDIUM));
+
+        pieces.add(StraightTrack.create(new Point(5, 30), new Point(10, 30)));
+        pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_MEDIUM));
+        Track last = pieces.get(pieces.size() - 1);
+        pieces.add(Turnout.createRight(last.getEnd(1), Turnout.RADIUS_MEDIUM));
+        pieces.add(Turnout.createRight(last.getEnd(2), Turnout.RADIUS_MEDIUM));
+
+
+        pieces.add(StraightTrack.create(new Point(5, 40), new Point(10, 40)));
+        pieces.add(Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_SLOW));
+
+        pieces.add(StraightTrack.create(new Point(5, 50), new Point(10, 50)));
+        pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_SLOW));
+
+
+        pieces.add(StraightTrack.create(new Point(-5, 0), new Point(-10, 0)));
+        pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
+
+        pieces.add(StraightTrack.create(new Point(-5, 10), new Point(-10, 10)));
+        pieces.add(Turnout.create(pieces.get(pieces.size() - 1).getEnd(1), Track.Direction.LEFT, Turnout.RADIUS_FAST, Turnout.RADIUS_MEDIUM));
+
 
 /*
         pieces.add(StraightTrack.create(new Point(0, 0), new Point(0, 90)));
@@ -79,8 +109,13 @@ public class TestWindow extends JFrame {
         pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 50, Math.toRadians(10)));
         pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 100, Math.PI / 3));
         pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 70, Math.PI * 0.75));
-*/
-/*      
+
+
+        pieces.add(StraightTrack.create(new Point(0, 0), new Point(0, 30)));
+        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 100, Math.PI / 3));
+        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 100, Math.PI / 3));
+
+        
         pieces.add(StraightTrack.create(new Point(0, 0), new Point(5, 5)));
         for (int i = 0; i < 100; i++)
         {
@@ -99,30 +134,11 @@ public class TestWindow extends JFrame {
                 //    break;
             }
         }
-//*/
 
-        pieces.add(StraightTrack.create(new Point(0, 0), new Point(20, 0)));
-        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 70, Math.PI / 4));
-
-        Consist test1 = Consist.createDebugConsist(3, false);
-        test1.place(pieces.get(0).getEnd(0), 1);
+        Consist test1 = Consist.createDebugConsist(5, false);
+        test1.place(pieces.get((int)Math.floor(Math.random() * pieces.size() * 0.5)).getEnd(0), 1);
         consists.add(test1);
-
-        pieces.add(StraightTrack.create(new Point(0, -30), new Point(20, -30)));
-        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 70, Math.PI / 4));
-
-        Consist test2 = Consist.createDebugConsist(3, false);
-        test2.place(pieces.get(2).getEnd(0), 1);
-        consists.add(test2);
-
-        pieces.add(StraightTrack.create(new Point(-10, -30), new Point(-12, -30)));
-        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 70, Math.PI / 4));
-        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 20));
-
-        Consist test3 = Consist.createDebugConsist(3, false);
-        test3.place(pieces.get(5).getEnd(0), 0);
-        consists.add(test3);
-
+*/
         repaint();
         setVisible(true);
     }

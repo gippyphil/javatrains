@@ -11,7 +11,7 @@ import track.Point;
 import track.TrackEnd;
 
 public class Viewport {
-    protected double scale = 8.0d;
+    protected double scale = 15.0d;
     protected double leftLon = 0;
     protected double bottomLat = 0;
     protected int height;

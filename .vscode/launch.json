@@ -9,7 +9,6 @@
             "name": "Launch TestWindow",
             "request": "launch",
             "mainClass": "windows.TestWindow",
-            "projectName": "JavaTrains_f5556ec1"
         }
     ]
 }
