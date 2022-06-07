@@ -54,7 +54,7 @@ public class CurvedTrack extends BasicTrack {
 
         double startAngle = Point.add(ends.get(0).getAng(), Math.PI); // point outwards from the end
         //startAngle = Point.add(startAngle, dir == Direction.RIGHT ? -Math.PI : (Math.PI)); // add 90 degrees to account for Java's orientation for right handed curves, or minus 90 for left
-        int gfxStartAngle = (int)Math.round(Math.toDegrees(startAngle));
+        int gfxStartAngle = (int)Math.floor(Math.toDegrees(startAngle));
         if (dir == Direction.LEFT)
             gfxStartAngle *= -1;
         else // right
@@ -62,7 +62,7 @@ public class CurvedTrack extends BasicTrack {
 
         v.getGraphics().setColor(Color.GRAY);
             
-        int gfxArcDegrees = (int)Math.round(Math.toDegrees(arcRadians));
+        int gfxArcDegrees = (int)Math.ceil(Math.toDegrees(arcRadians));
         if (dir == Direction.RIGHT)
             gfxArcDegrees *= -1;
 
@@ -143,7 +143,7 @@ public class CurvedTrack extends BasicTrack {
         if (dir == Direction.RIGHT ^ end == ends.get(1)) {
             angle = Point.add(angle, resultAngle);
             result = new PointContext(pivotPoint, angle, radius, this, end);
-            if (startAngle <= angle && angle <= endAngle) {
+            if (Point.containsAngle(startAngle, angle, endAngle)/*startAngle <= angle && angle <= endAngle*/) {
 System.out.format("R T%d: %1.1f <= %1.1f <= %1.1f   TRUE\n", id, Math.toDegrees(startAngle), Math.toDegrees(angle), Math.toDegrees(endAngle));        
                 return result;
             } else {

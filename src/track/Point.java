@@ -33,6 +33,20 @@ public class Point {
         return Math.sqrt(Math.pow(end.lat - start.lat, 2) + Math.pow(end.lon - start.lon, 2));
     }
 
+    /**
+     * @param startAngle the start angle
+     * @param angle the angle to check 
+     * @param endAngle the end angle
+     * @return true when start <= angle <= endAngle
+     */
+    public static boolean containsAngle (double startAngle, double angle, double endAngle)
+    {
+        if (endAngle > startAngle)
+            return (startAngle <= angle && angle <= endAngle);
+        else // wraps through 0
+            return (startAngle <= angle && angle < 360.0)|| (angle <= endAngle && angle >= 0.0);
+    }
+
     @Override
     public String toString () {
         return String.format("[%1.3f, %1.3f]", lat, lon);

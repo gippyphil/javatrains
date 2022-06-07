@@ -67,7 +67,7 @@ public class TestWindow extends JFrame {
     
         pieces = new ArrayList<>();
         consists = new ArrayList<>();
-        testTurnouts();
+        testCurves();
 
 
 /*
@@ -135,6 +135,28 @@ public class TestWindow extends JFrame {
     }
 
 
+    private void testCurves () throws TrackException, PathException { 
+        StraightTrack straight = StraightTrack.create(new Point(0, -20), new Point(20, -20));
+        CurvedTrack curved = CurvedTrack.create(straight.getEnd(1), Track.Direction.RIGHT, 20, Math.PI / 2);
+
+        pieces.add(straight);
+        pieces.add(curved);
+
+        Consist test1 = Consist.createDebugConsist(1, false);
+        test1.place(straight.getEnd(0), 15);
+        consists.add(test1);
+
+        StraightTrack straight2 = StraightTrack.create(new Point(0, 30), new Point(20, 30));
+        CurvedTrack curved2 = CurvedTrack.create(straight2.getEnd(1), Track.Direction.RIGHT, 20, Math.PI / 2);
+
+        pieces.add(straight2);
+        pieces.add(curved2);
+
+        Consist test2 = Consist.createDebugConsist(1, false);
+        test2.place(curved2.getEnd(1), 1);
+        consists.add(test2);
+    }
+
     private void testTurnouts () throws TrackException, PathException {
         Turnout lastTurnout, lastTurnout2 = null;
         StraightTrack placement = null;
@@ -149,15 +171,15 @@ public class TestWindow extends JFrame {
         pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_MEDIUM));
 */
         pieces.add(placement = StraightTrack.create(new Point(-190, 30), new Point(10, 30)));
-        pieces.add(lastTurnout = Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_MEDIUM));
+        pieces.add(lastTurnout = Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
 
-        pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(1), Turnout.RADIUS_MEDIUM));
-        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, Math.toRadians(25)));
+        pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(1), Turnout.RADIUS_FAST));
+        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_FAST, Math.toRadians(25)));
         pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
-        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(2), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, Math.toRadians(12.5)));
+        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(2), Track.Direction.RIGHT, Turnout.RADIUS_FAST, Math.toRadians(12.5)));
         pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
-        pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(2), Turnout.RADIUS_MEDIUM));
-        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, Math.toRadians(12.5)));
+        pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(2), Turnout.RADIUS_FAST));
+        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_FAST, Math.toRadians(12.5)));
         pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
         pieces.add(StraightTrack.create(lastTurnout2.getEnd(2), 200));
 
@@ -175,7 +197,7 @@ public class TestWindow extends JFrame {
         pieces.add(StraightTrack.create(new Point(-5, 10), new Point(-10, 10)));
         pieces.add(Turnout.create(pieces.get(pieces.size() - 1).getEnd(1), Track.Direction.LEFT, Turnout.RADIUS_FAST, Turnout.RADIUS_MEDIUM));
 */
-        Consist test1 = Consist.createDebugConsist(3, false);
+        Consist test1 = Consist.createDebugConsist(4, false);
         test1.place(placement.getEnd(0), placement.getLength() - 40);
         consists.add(test1);
 

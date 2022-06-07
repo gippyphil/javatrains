@@ -2,8 +2,6 @@ package track;
 
 import java.awt.Color;
 
-import org.w3c.dom.Text;
-
 import windows.Viewport;
 
 /**

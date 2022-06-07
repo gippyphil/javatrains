@@ -90,7 +90,7 @@ public class StraightTrack extends BasicTrack {
     
             double direction = Point.add(end.getAng(), Math.PI); // 180 deg away
             return new PointContext(end.getLoc(), direction, distance, this, end);
-        } else if (previousPivot.getTrack() == this || Path.findMostDirectPath(this, previousPivot.getTrack()).isStraight()) {
+        } else if (previousPivot.getTrack() == this || Path.findMostDirectPath(this, previousPivot.getTrack(), false).isStraight()) {
             
             // almost as simple!
             double calcLength = Point.findDistance(previousPivot, pathFrom(end).getLoc());

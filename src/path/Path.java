@@ -19,8 +19,8 @@ public class Path
     private static int nextID = 0;
     protected int id;
 
-    public static Path findMostDirectPath (Track from, Track to) throws TrackException, PathException {
-        List<Path> possiblePaths = findPaths(from, to, true);
+    public static Path findMostDirectPath (Track from, Track to, boolean junctionsAsIs) throws TrackException, PathException {
+        List<Path> possiblePaths = findPaths(from, to, true, junctionsAsIs);
         if (possiblePaths.size() == 0)
             return null;
         // sort by total length and return the shortest.  (yes, rounding errors, etc))
@@ -28,7 +28,7 @@ public class Path
         return possiblePaths.get(0);
     }
 
-    public static List<Path> findPaths (Track from, Track to, boolean stopAfterFirstResult) throws TrackException, PathException {
+    public static List<Path> findPaths (Track from, Track to, boolean stopAfterFirstResult, boolean junctionsAsIs) throws TrackException, PathException {
 System.out.format("findPaths(%d, %d)\n", from.id, to.id);        
         // create an initial path for each direction
         List<Path> successfulPaths = new ArrayList<>();
@@ -65,17 +65,23 @@ System.out.format("%d has found a solution!", possiblePath.id);
                 }
                 // keep looking
                 if (next instanceof BasicTrack) {
-                    possiblePath.add(possiblePath.getEnd().getConnectedEnd(), next);
+                    possiblePath.add(next.pathFrom(possiblePath.getEnd().getConnectedEnd()), next);
                 } else if (next instanceof Junction) {
                     Junction junction = (Junction)next;
-                    List<BasicTrack> junctionTracks = junction.tracksFrom(possiblePath.getEnd().getConnectedEnd());
-                    // we need to add a new path for all but the first option this junction gives us 
-                    for (int i = 1; i < junctionTracks.size(); i++) {
-                        Path newPath = possiblePath.clone();
-                        newPath.add(possiblePath.getEnd().getConnectedEnd(), junctionTracks.get(i));
-                        addList.add(newPath);
+                    if (junctionsAsIs) {
+                        possiblePath.add(junction.pathFrom(possiblePath.getEnd().getConnectedEnd()), junction);
                     }
-                    possiblePath.add(possiblePath.getEnd().getConnectedEnd(), junctionTracks.get(0));
+                    else {
+                        List<TrackEnd> junctionEnds = junction.pathsFrom(possiblePath.getEnd().getConnectedEnd());
+                        // we need to add a new path for all but the first option this junction gives us 
+                        for (int i = 1; i < junctionEnds.size(); i++) {
+                            Path newPath = possiblePath.clone();
+                            newPath.add(junctionEnds.get(i), junction);
+                            addList.add(newPath);
+                        }
+                        possiblePath.add(junctionEnds.get(0), junction);
+                            
+                    }
                 } else { // unknown, bail!
                     throw new TrackException(next, "Unknown track type for pathing");
                 }
