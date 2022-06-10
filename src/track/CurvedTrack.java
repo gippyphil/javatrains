@@ -154,7 +154,8 @@ System.out.format("R T%d: %1.1f <= %1.1f <= %1.1f   FALSE\n", id, Math.toDegrees
         else {
             angle -= resultAngle;
             result = new PointContext(pivotPoint, -angle, radius, this, end);
-            if (startAngle >= Point.subtract(-angle, 0) && Point.subtract(-angle, 0) >= endAngle) {
+            if (Point.containsAngle(endAngle, Point.subtract(-angle, 0), startAngle)) {
+            //if (startAngle >= Point.subtract(-angle, 0) && Point.subtract(-angle, 0) >= endAngle) {
 System.out.format("L T%d: %1.1f >= %1.1f >= %1.1f   TRUE\n", id, Math.toDegrees(startAngle), Math.toDegrees(Point.subtract(-angle, 0)), Math.toDegrees(endAngle));        
                 return result;
             } else {

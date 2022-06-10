@@ -146,7 +146,7 @@ public class TestWindow extends JFrame {
         test1.place(straight.getEnd(0), 15);
         consists.add(test1);
 
-        StraightTrack straight2 = StraightTrack.create(new Point(0, 30), new Point(20, 30));
+        StraightTrack straight2 = StraightTrack.create(new Point(0, 20), new Point(20, 20));
         CurvedTrack curved2 = CurvedTrack.create(straight2.getEnd(1), Track.Direction.RIGHT, 20, Math.PI / 2);
 
         pieces.add(straight2);
