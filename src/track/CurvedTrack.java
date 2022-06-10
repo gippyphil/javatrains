@@ -126,15 +126,20 @@ public class CurvedTrack extends BasicTrack {
         double CosA = (B*B + A*A - C*C) / (2*B*A);
         double angle = Math.acos(CosA);
 
+        // this is impossible
         if (Double.isNaN(angle))
         {
+            System.out.format("Impossible triangle %1.1f, %1.1f, %1.1f\n", A, B, C);
             return null;
         }
 
         double resultAngle = Point.findAngle(pivotPoint, pivotPoint2);
-        // this is impossible
-        if (Math.abs(angle) > Math.abs(arcRadians))
+        /*
+        if (Math.abs(angle) > Math.abs(arcRadians)) {
+            System.out.format("findIntersection([%1.1f, %1.1f], [%1.1f, %1.1f], %1.1f) == %1.1f > %1.1f\n", pivotPoint.getLat(), pivotPoint.getLon(), pivotPoint2.getLat(), pivotPoint2.getLon(), radius2, Math.abs(Math.toDegrees(angle)), Math.abs(Math.toDegrees(arcRadians)));
             return null;
+        }*/
+//        System.out.format("findIntersection([%1.1f, %1.1f], [%1.1f, %1.1f], %1.1f) == %1.1f <= %1.1f\n", pivotPoint.getLat(), pivotPoint.getLon(), pivotPoint2.getLat(), pivotPoint2.getLon(), radius2, Math.abs(Math.toDegrees(angle)), Math.abs(Math.toDegrees(arcRadians)));
 
         // measuring from the "other" end has the effect of turning a left turn into a right
         double startAngle = Point.findAngle(pivotPoint, end.getLoc());
@@ -169,6 +174,7 @@ System.out.format("L T%d: %1.1f >= %1.1f >= %1.1f   FALSE\n", id, Math.toDegrees
 
     @Override
     public PointContext getPointFrom (PointContext previousPivot, TrackEnd end, double distance) throws PathException, TrackException {
+System.out.println("C" + id + ".getPointFrom(" + distance + ")");
 
         if (!ends.contains(end))
             throw new TrackException(this, "Doesn't contain " + end);

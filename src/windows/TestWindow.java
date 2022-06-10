@@ -136,25 +136,27 @@ public class TestWindow extends JFrame {
 
 
     private void testCurves () throws TrackException, PathException { 
-        StraightTrack straight = StraightTrack.create(new Point(0, -20), new Point(20, -20));
-        CurvedTrack curved = CurvedTrack.create(straight.getEnd(1), Track.Direction.RIGHT, 20, Math.PI / 2);
+        StraightTrack straight = StraightTrack.create(new Point(-20, 0), new Point(-20, 20));
+        CurvedTrack curved = CurvedTrack.create(straight.getEnd(1), Track.Direction.RIGHT, 15, Math.PI / 2);
 
         pieces.add(straight);
         pieces.add(curved);
+        pieces.add(StraightTrack.create(curved.getEnd(1), 20));
 
         Consist test1 = Consist.createDebugConsist(1, false);
-        test1.place(straight.getEnd(0), 15);
+        test1.place(straight.getEnd(0), 12.5);
         consists.add(test1);
-
-        StraightTrack straight2 = StraightTrack.create(new Point(0, 20), new Point(20, 20));
+/* 
+        StraightTrack straight2 = StraightTrack.create(new Point(0, 30), new Point(20, 30));
         CurvedTrack curved2 = CurvedTrack.create(straight2.getEnd(1), Track.Direction.RIGHT, 20, Math.PI / 2);
 
         pieces.add(straight2);
         pieces.add(curved2);
 
         Consist test2 = Consist.createDebugConsist(1, false);
-        test2.place(curved2.getEnd(1), 1);
+        test2.place(curved2.getEnd(1), 15);
         consists.add(test2);
+*/
     }
 
     private void testTurnouts () throws TrackException, PathException {

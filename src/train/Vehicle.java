@@ -5,6 +5,7 @@ import path.PathException;
 import track.CurvedTrack;
 import track.Point;
 import track.PointContext;
+import track.StraightTrack;
 import track.Track;
 import track.TrackEnd;
 import track.TrackException;
@@ -157,6 +158,9 @@ System.out.format("V%04d: FW T%d @ {%1.1f, %1.1f} BW T%d @ {%1.1f, %1.1f}\n", id
             viewport.getGraphics().setColor(Color.YELLOW);
             viewport.getGraphics().drawArc(x1 - gfxWheelbase, y1 - gfxWheelbase, 2 * gfxWheelbase, 2 * gfxWheelbase, 0, 360);
 
+            viewport.getGraphics().setColor(Color.MAGENTA);
+            viewport.drawArc(backWheel, wheelbase, 0, Math.PI * 2);
+
             try {
                 for (PointContext wheel : Arrays.asList(frontWheel, backWheel)) {
                     if (!(wheel.getTrack() instanceof CurvedTrack))
@@ -164,11 +168,19 @@ System.out.format("V%04d: FW T%d @ {%1.1f, %1.1f} BW T%d @ {%1.1f, %1.1f}\n", id
                     viewport.setColor(Color.CYAN);
                     viewport.drawLine(wheel, ((CurvedTrack)wheel.getTrack()).pivotPoint);
                     String s = String.format("%1.1f < %1.1f < %1.1f", Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel.getEnd().getLoc())),
-                                                                      Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel)),
-                                                                      Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel.getTrack().pathFrom(wheel.getEnd()).getLoc())));
+                                                                              Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel)),
+                                                                              Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel.getTrack().pathFrom(wheel.getEnd()).getLoc())));
                     viewport.setColor(Color.YELLOW);
                     viewport.getGraphics().drawString(s, viewport.getX(wheel) + 10, viewport.getY(wheel));
                 }
+
+                // TODO - remove this hack to test line stuff
+                StraightTrack st = (StraightTrack)(backWheel.getEnd().getParent().pathFrom(backWheel.getEnd()).getConnectedTrack());
+                PointContext pc = st.findIntersection(st.getEnd(0), backWheel, wheelbase, viewport);
+System.out.format("Measured length: %1.1f  (wheelbase: %1.1f)\n", Point.findDistance(backWheel, pc), wheelbase);
+
+                viewport.setColor(Color.MAGENTA);
+                viewport.drawLine(backWheel, pc);
             } catch (TrackException tx) {
                 tx.printStackTrace();
             }

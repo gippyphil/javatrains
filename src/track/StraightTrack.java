@@ -33,6 +33,8 @@ public class StraightTrack extends BasicTrack {
 //        t.ends.add(TrackEnd.create(t, new Point((Math.cos(end.getAng()) * length) + end.getLoc().lat, (Math.sin(end.getAng()) * length) + end.getLoc().lon), end.getAng()));
         t.getEnd(0).connect(end);
 
+        System.out.println(t.ends.get(0) + " -> " + t.ends.get(1));
+
         return t;
     }
 
@@ -69,9 +71,38 @@ public class StraightTrack extends BasicTrack {
         super.render(v);
     }
 
+    public PointContext findIntersection (TrackEnd end, Point pivotPoint2, double radius2, Viewport v) throws TrackException {
+
+        if (v != null) {
+            v.setColor(Color.white);
+            v.drawLine(ends.get(0).getLoc(), ends.get(1).getLoc());
+        }
+
+        double xa = pivotPoint2.getLon();
+        double ya = pivotPoint2.getLat();
+
+        double x1 = ends.get(0).getLoc().getLon();
+        double x2 = ends.get(1).getLoc().getLon();
+        double y1 = ends.get(0).getLoc().getLat();
+        double y2 = ends.get(1).getLoc().getLat();
+
+
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+
+        double al = Math.atan(dy/dx);
+
+        double c = (xa - x1 + radius2 * Math.cos(al)) / dx;
+        // -- or -- ... these don't give the same result
+        //double c = (ya - y1 + radius2 * Math.sin(al)) / dy;
+
+        return new PointContext((y1+c * dy), (x1+c * dx), this, end);
+    }
+
+
     @Override
     public PointContext getPointFrom (PointContext previousPivot, TrackEnd end, double distance) throws PathException, TrackException {
-//System.out.println(this + ".getPointFrom(" + distance + ")");
+System.out.println("S" + id + ".getPointFrom(" + distance + ")");
         if (!ends.contains(end))
             throw new TrackException(this, "Doesn't contain " + end);
 
