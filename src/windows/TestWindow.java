@@ -137,13 +137,13 @@ public class TestWindow extends JFrame {
         // yard ladder
         pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(1), Turnout.RADIUS_FAST));
         pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, lastTurnout2.getDivergentArcRadians() * 2));
-        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
+        pieces.add(placement = StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
         pieces.add(CurvedTrack.create(lastTurnout2.getEnd(2), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout2.getDivergentArcRadians()));
         pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
         pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(2), Turnout.RADIUS_FAST));
         pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout.getDivergentArcRadians()));
         pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
-        pieces.add(placement = StraightTrack.create(lastTurnout2.getEnd(2), 200));
+        pieces.add(StraightTrack.create(lastTurnout2.getEnd(2), 200));
 
 
 
@@ -160,9 +160,9 @@ public class TestWindow extends JFrame {
         pieces.add(StraightTrack.create(new Point(-5, 10), new Point(-10, 10)));
         pieces.add(Turnout.create(pieces.get(pieces.size() - 1).getEnd(1), Track.Direction.LEFT, Turnout.RADIUS_FAST, Turnout.RADIUS_MEDIUM));
 
-        //Consist test1 = Consist.createDebugConsist(20, true);
-        //test1.place(placement.getEnd(1), 30);
-        //consists.add(test1);
+        Consist test1 = Consist.createDebugConsist(20, true);
+        test1.place(placement.getEnd(1), 30);
+        consists.add(test1);
 
     }
  

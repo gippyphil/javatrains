@@ -79,6 +79,8 @@ public class Point {
             return new Point(y1, x1);
         else if (intersection2 && !intersection1)
             return new Point(y2, x2);
+        else if (intersection2 && intersection1)
+            return null;
         else
             return null;
     }

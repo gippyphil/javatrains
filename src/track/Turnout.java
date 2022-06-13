@@ -37,7 +37,7 @@ public class Turnout extends Junction {
 
     // TODO doesn't handle Wyes
     public static Turnout create (TrackEnd end, Direction dir, double radiusMain, double radiusDivergent) throws TrackException {
-        if (radiusDivergent == RADIUS_STRAIGHT)
+        if (Double.isInfinite(radiusDivergent))
             throw new TrackException(null, "Cannot create turnout with a straight divergent leg");
         if (radiusMain != RADIUS_STRAIGHT && radiusDivergent > radiusMain)
             throw new TrackException(null, "Cannot create a curved turnout with a divergent radius greater than the main radius");
@@ -56,17 +56,23 @@ public class Turnout extends Junction {
             Point pArc = new Point(end.getLoc(), Point.add(end.getAng(), (dir == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2)), radiusDivergent);
 
             Point p3 = Point.findIntersection(pArc.getLon(), pArc.getLat(), radiusDivergent, p1.getLon(), p1.getLat(), p2.getLon(), p2.getLat());
-            if (p3 == null)
-                throw new TrackException(null, "Failed to determine divergent track arc length.  This shouldn't happen!");
-            // Law of Cosines gives as the angle between A and B
-            double A = radiusDivergent;
-            double B = radiusDivergent;
-            double C = Point.findDistance(p1, p3);
+            if (p3 == null) {
+                //throw new TrackException(null, "Failed to determine divergent track arc length.  This shouldn't happen!");
+                clearanceArcRadians = Math.toRadians(12.5);
+                t.divergentArcRadians = clearanceArcRadians;
+                mainLength = 50;
+            }
+            else {
+                // Law of Cosines gives as the angle between A and B
+                double A = radiusDivergent;
+                double B = radiusDivergent;
+                double C = Point.findDistance(p1, p3);
 
-            double CosA = (B*B + A*A - C*C) / (2*B*A);
-            clearanceArcRadians = Math.acos(CosA);
-            t.divergentArcRadians = clearanceArcRadians;
-            mainLength = Point.findDistance(p1, p3);
+                double CosA = (B*B + A*A - C*C) / (2*B*A);
+                clearanceArcRadians = Math.acos(CosA);
+                t.divergentArcRadians = clearanceArcRadians;
+                mainLength = Point.findDistance(p1, p3);
+            }
         }
         // this needs more work not a linear relationship
         if (Double.isFinite(radiusMain)) {
@@ -188,7 +194,7 @@ public class Turnout extends Junction {
 
         if (v.showDebug()) {
             if (mainRoute instanceof StraightTrack) {
-                Point p1 = new Point(mainRoute.getEnd(0).getLoc(), divergeDirection == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2, Track.HORZ_CLEARANCE / 2);
+                Point p1 = new Point(mainRoute.getEnd(0).getLoc(), Point.add(mainRoute.getEnd(1).getAng(), (divergeDirection == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2)), Track.HORZ_CLEARANCE / 2);
                 Point p2 = new Point(p1, mainRoute.getEnd(1).getAng(), mainRoute.getLength());
     
                 CurvedTrack curve = (CurvedTrack)divergentRoute;
