@@ -74,6 +74,47 @@ public class StraightTrack extends BasicTrack {
     public PointContext findIntersection (TrackEnd end, Point pivotPoint2, double radius2, Viewport v) throws TrackException {
 
         if (v != null) {
+            v.setColor(Color.RED);
+            v.drawLine(ends.get(0).getLoc(), ends.get(1).getLoc());
+        }
+
+        double xa = pivotPoint2.getLon();
+        double ya = pivotPoint2.getLat();
+
+        double x1 = ends.get(0).getLoc().getLon();
+        double x2 = ends.get(1).getLoc().getLon();
+        double y1 = ends.get(0).getLoc().getLat();
+        double y2 = ends.get(1).getLoc().getLat();
+
+
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+
+        double riseOverRun = Math.atan(dy/dx);
+        double yOffset = y1 - ya;
+        double xOffset = x1 - xa;
+
+        // thanks to https://www.symbolab.com/solver/equation-calculator/x%5E%7B2%7D%20%2B%20%5Cleft(o%20%2B%20x%5Ccdot%20a%5Cright)%5E%7B2%7D%20%3D%20r%5E%7B2%7D?or=input
+
+        double xOpt1 = (-2 * riseOverRun * yOffset) - 2 * Math.sqrt(Math.pow(riseOverRun, 2) * Math.pow(radius2, 2) - Math.pow(yOffset, 2) + Math.pow(radius2, 2)) / (2 * (1 + Math.pow(riseOverRun, 2)));
+        double yOpt1 = yOffset + xOpt1 * riseOverRun;
+
+        double xOpt2 = (riseOverRun * yOffset) + Math.sqrt(Math.pow(radius2, 2) + Math.pow(riseOverRun, 2) * Math.pow(radius2, 2) - Math.pow(yOffset, 2)) / Math.pow(riseOverRun, 2) + 1;
+        double yOpt2 = yOffset + xOpt2 * riseOverRun;
+
+        if (v != null) {
+            v.setColor(Color.GREEN);
+            v.drawLine(new Point(yOpt1, xOffset + xOpt1), new Point(yOpt2, xOffset + xOpt2));
+        }
+
+        return new PointContext(yOpt1, xOffset + xOpt1, this, end);
+    }
+
+
+
+    public PointContext findIntersection_DODGYCODEFROMWEB (TrackEnd end, Point pivotPoint2, double radius2, Viewport v) throws TrackException {
+
+        if (v != null) {
             v.setColor(Color.white);
             v.drawLine(ends.get(0).getLoc(), ends.get(1).getLoc());
         }

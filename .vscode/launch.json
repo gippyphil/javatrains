@@ -6,9 +6,16 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch TestCircles",
+            "request": "launch",
+            "mainClass": "windows.TestCircles",
+            "projectName": "JavaTrains_f5556ec1"
+        },
+        {
+            "type": "java",
             "name": "Launch TestWindow",
             "request": "launch",
-            "mainClass": "windows.TestWindow",
+            "mainClass": "windows.TestWindow"
         }
     ]
 }

@@ -67,52 +67,10 @@ public class TestWindow extends JFrame {
     
         pieces = new ArrayList<>();
         consists = new ArrayList<>();
+        //testTurnouts();
         testCurves();
 
 
-/*
-        pieces.add(StraightTrack.create(new Point(0, 0), new Point(0, 90)));
-        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 20));
-        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 60, Math.toRadians(5)));
-        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 60, Math.toRadians(15)));
-        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 60, Math.toRadians(20)));
-
-        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 50, Math.toRadians(10)));
-        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 50, Math.toRadians(10)));
-        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 50, Math.toRadians(10)));
-        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 50, Math.toRadians(10)));
-        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 100, Math.PI / 3));
-        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 70, Math.PI * 0.75));
-
-
-        pieces.add(StraightTrack.create(new Point(0, 0), new Point(0, 30)));
-        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 100, Math.PI / 3));
-        pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 100, Math.PI / 3));
-
-        
-        pieces.add(StraightTrack.create(new Point(0, 0), new Point(5, 5)));
-        for (int i = 0; i < 100; i++)
-        {
-            switch ((int)(Math.ceil(Math.random() * 2)))
-            {
-                case 1:
-                    pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.LEFT, 60 + (Math.random() * 80), Math.PI * 0.05 + (Math.random() / 2)));
-                    break;
-
-                default:
-                    pieces.add(CurvedTrack.create(pieces.get(pieces.size() - 1).getEnd(1), CurvedTrack.Direction.RIGHT, 60 + (Math.random() * 80), Math.PI * 0.05 + (Math.random() / 2)));
-                    break;
-
-                //default:
-                //    pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 10 + (Math.random() * 40)));
-                //    break;
-            }
-        }
-
-        Consist test1 = Consist.createDebugConsist(5, false);
-        test1.place(pieces.get((int)Math.floor(Math.random() * pieces.size() * 0.5)).getEnd(0), 1);
-        consists.add(test1);
-*/
         repaint();
         setVisible(true);
     }
@@ -136,8 +94,8 @@ public class TestWindow extends JFrame {
 
 
     private void testCurves () throws TrackException, PathException { 
-        StraightTrack straight = StraightTrack.create(new Point(-20, 0), new Point(-20, 20));
-        CurvedTrack curved = CurvedTrack.create(straight.getEnd(1), Track.Direction.RIGHT, 15, Math.PI / 2);
+        StraightTrack straight = StraightTrack.create(new Point(-20, 0), new Point(-23, 20));
+        CurvedTrack curved = CurvedTrack.create(straight.getEnd(1), Track.Direction.LEFT, 16, Math.PI / 3);
 
         pieces.add(straight);
         pieces.add(curved);
