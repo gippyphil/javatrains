@@ -33,6 +33,11 @@ public class Point {
         return Math.sqrt(Math.pow(end.lat - start.lat, 2) + Math.pow(end.lon - start.lon, 2));
     }
 
+    public static boolean inRange (double min, double val, double max) {
+        return (min <= val && val <= max) || (max <= val && val <= min);
+    }
+
+
     /**
      * @param startAngle the start angle
      * @param angle the angle to check 

@@ -71,73 +71,50 @@ public class StraightTrack extends BasicTrack {
         super.render(v);
     }
 
-    public PointContext findIntersection (TrackEnd end, Point pivotPoint2, double radius2, Viewport v) throws TrackException {
+    public PointContext findIntersection (TrackEnd end, Point pivotPoint2, double radius, Viewport v) throws TrackException {
 
         if (v != null) {
             v.setColor(Color.RED);
             v.drawLine(ends.get(0).getLoc(), ends.get(1).getLoc());
         }
 
-        double xa = pivotPoint2.getLon();
-        double ya = pivotPoint2.getLat();
+        double arcX = pivotPoint2.getLon();
+        double arcY = pivotPoint2.getLat();
 
-        double x1 = ends.get(0).getLoc().getLon();
-        double x2 = ends.get(1).getLoc().getLon();
-        double y1 = ends.get(0).getLoc().getLat();
-        double y2 = ends.get(1).getLoc().getLat();
+        double lineX1 = ends.get(0).getLoc().getLon();
+        double lineX2 = ends.get(1).getLoc().getLon();
+        double lineY1 = ends.get(0).getLoc().getLat();
+        double lineY2 = ends.get(1).getLoc().getLat();
 
+        double offsetY = lineY1 - arcY;
+        double offsetX = lineX1 - arcX;
+        double riseOverRun = (lineY2 - lineY1) / (lineX2 - lineX1);
+        double x1 = Double.NaN, y1 = Double.NaN, x2 = Double.NaN, y2 = Double.NaN;
 
-        double dx = x2 - x1;
-        double dy = y2 - y1;
-
-        double riseOverRun = Math.atan(dy/dx);
-        double yOffset = y1 - ya;
-        double xOffset = x1 - xa;
-
-        // thanks to https://www.symbolab.com/solver/equation-calculator/x%5E%7B2%7D%20%2B%20%5Cleft(o%20%2B%20x%5Ccdot%20a%5Cright)%5E%7B2%7D%20%3D%20r%5E%7B2%7D?or=input
-
-        double xOpt1 = (-2 * riseOverRun * yOffset) - 2 * Math.sqrt(Math.pow(riseOverRun, 2) * Math.pow(radius2, 2) - Math.pow(yOffset, 2) + Math.pow(radius2, 2)) / (2 * (1 + Math.pow(riseOverRun, 2)));
-        double yOpt1 = yOffset + xOpt1 * riseOverRun;
-
-        double xOpt2 = (riseOverRun * yOffset) + Math.sqrt(Math.pow(radius2, 2) + Math.pow(riseOverRun, 2) * Math.pow(radius2, 2) - Math.pow(yOffset, 2)) / Math.pow(riseOverRun, 2) + 1;
-        double yOpt2 = yOffset + xOpt2 * riseOverRun;
-
-        if (v != null) {
-            v.setColor(Color.GREEN);
-            v.drawLine(new Point(yOpt1, xOffset + xOpt1), new Point(yOpt2, xOffset + xOpt2));
+        boolean intersection1 = false;
+        boolean intersection2 = false;
+        if (Double.isFinite(riseOverRun)) {
+            double arcZeroYOffset = offsetY - (offsetX * riseOverRun);
+            double denominator = 1 + Math.pow(riseOverRun, 2);
+            double sqrtPart = Math.sqrt(Math.pow(radius, 2) + Math.pow(riseOverRun, 2) * Math.pow(radius, 2) - Math.pow(arcZeroYOffset, 2));
+            if (!Double.isNaN(sqrtPart))
+            {
+                x1 = ((-arcZeroYOffset * riseOverRun) + sqrtPart) / denominator;
+                y1 = arcY + arcZeroYOffset + (x1 * riseOverRun);
+                x1 += arcX;
+                x2 = -(((arcZeroYOffset * riseOverRun) + sqrtPart) / denominator);
+                y2 = arcY + arcZeroYOffset + (x2 * riseOverRun);
+                x2 += arcX;
+            
+                intersection1 = Point.inRange(lineX1, x1, lineX2) && Point.inRange(lineY1, y1, lineY2);
+                intersection2 = Point.inRange(lineX1, x2, lineX2) && Point.inRange(lineY1, y2, lineY2);
+                if (intersection1 && !intersection2)
+                    return new PointContext(y1, x1, this, end);
+                else if (intersection2 && !intersection1)
+                    return new PointContext(y2, x2, this, end);
+            }
         }
-
-        return new PointContext(yOpt1, xOffset + xOpt1, this, end);
-    }
-
-
-
-    public PointContext findIntersection_DODGYCODEFROMWEB (TrackEnd end, Point pivotPoint2, double radius2, Viewport v) throws TrackException {
-
-        if (v != null) {
-            v.setColor(Color.white);
-            v.drawLine(ends.get(0).getLoc(), ends.get(1).getLoc());
-        }
-
-        double xa = pivotPoint2.getLon();
-        double ya = pivotPoint2.getLat();
-
-        double x1 = ends.get(0).getLoc().getLon();
-        double x2 = ends.get(1).getLoc().getLon();
-        double y1 = ends.get(0).getLoc().getLat();
-        double y2 = ends.get(1).getLoc().getLat();
-
-
-        double dx = x2 - x1;
-        double dy = y2 - y1;
-
-        double al = Math.atan(dy/dx);
-
-        double c = (xa - x1 + radius2 * Math.cos(al)) / dx;
-        // -- or -- ... these don't give the same result
-        //double c = (ya - y1 + radius2 * Math.sin(al)) / dy;
-
-        return new PointContext((y1+c * dy), (x1+c * dx), this, end);
+        return null;
     }
 
 
@@ -162,7 +139,7 @@ System.out.println("S" + id + ".getPointFrom(" + distance + ")");
     
             double direction = Point.add(end.getAng(), Math.PI); // 180 deg away
             return new PointContext(end.getLoc(), direction, distance, this, end);
-        } else if (previousPivot.getTrack() == this || Path.findMostDirectPath(this, previousPivot.getTrack(), false).isStraight()) {
+        } else if (previousPivot.getTrack() == this) {
             
             // almost as simple!
             double calcLength = Point.findDistance(previousPivot, pathFrom(end).getLoc());
@@ -178,11 +155,10 @@ System.out.println("S" + id + ".getPointFrom(" + distance + ")");
 
             double direction = Point.add(end.getAng(), Math.PI); // 180 deg away
             return new PointContext(previousPivot, direction, distance, this, end);
-        } else 
-        // TODO handle a string of straight track maybe?
-        {
+        } 
+        else {
             // coming off a curve possibly? maths/intersections... 
-            return null;
+            return this.findIntersection(end, previousPivot, distance, null);
         }
     }
 }

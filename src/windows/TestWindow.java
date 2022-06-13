@@ -67,8 +67,8 @@ public class TestWindow extends JFrame {
     
         pieces = new ArrayList<>();
         consists = new ArrayList<>();
-        //testTurnouts();
-        testCurves();
+        testTurnouts();
+        //testCurves();
 
 
         repaint();
@@ -130,7 +130,7 @@ public class TestWindow extends JFrame {
         pieces.add(StraightTrack.create(new Point(5, 20), new Point(10, 20)));
         pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_MEDIUM));
 */
-        pieces.add(placement = StraightTrack.create(new Point(-190, 30), new Point(10, 30)));
+        pieces.add(placement = StraightTrack.create(new Point(-190, 30), new Point(10, 0)));
         pieces.add(lastTurnout = Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
 
         pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(1), Turnout.RADIUS_FAST));
@@ -157,8 +157,8 @@ public class TestWindow extends JFrame {
         pieces.add(StraightTrack.create(new Point(-5, 10), new Point(-10, 10)));
         pieces.add(Turnout.create(pieces.get(pieces.size() - 1).getEnd(1), Track.Direction.LEFT, Turnout.RADIUS_FAST, Turnout.RADIUS_MEDIUM));
 */
-        Consist test1 = Consist.createDebugConsist(4, false);
-        test1.place(placement.getEnd(0), placement.getLength() - 40);
+        Consist test1 = Consist.createDebugConsist(30, true);
+        test1.place(placement.getEnd(0), 30);
         consists.add(test1);
 
     }

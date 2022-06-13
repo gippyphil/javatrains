@@ -43,12 +43,16 @@ public class Vehicle implements AnimationListener {
 
     protected static int nextID = 0;
 
+    protected Color col;
+
     protected Vehicle (double length, double distanceToFrontWheel, double distanceToBackWheel)
     {
         this.length = length;
         this.distanceToFrontWheel = distanceToFrontWheel;
         this.distanceToBackWheel = distanceToBackWheel;
         this.wheelbase = length - distanceToBackWheel - distanceToFrontWheel;
+
+        this.col = new Color(127 + (int)Math.floor(Math.random() * 128), 127 + (int)Math.floor(Math.random() * 128), 127 + (int)Math.floor(Math.random() * 128));
 
         this.id = ++nextID;
 System.out.format("V%04d: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFrontWheel, distanceToBackWheel);
@@ -109,7 +113,7 @@ System.out.format("V%04d: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFrontW
         System.out.println("Placing back wheel...");            
         backWheel = frontWheel.getTrack().getPointFrom(frontWheel, frontWheel.getEnd(), wheelbase);
 
-System.out.format("V%04d: FW T%d @ {%1.1f, %1.1f} BW T%d @ {%1.1f, %1.1f}\n", id, frontWheel.getTrack().id, frontWheel.getLat(), frontWheel.getLon(), backWheel.getTrack().id, backWheel.getLat(), backWheel.getLon());
+//System.out.format("V%04d: FW T%d @ {%1.1f, %1.1f} BW T%d @ {%1.1f, %1.1f}\n", id, frontWheel.getTrack().id, frontWheel.getLat(), frontWheel.getLon(), backWheel.getTrack().id, backWheel.getLat(), backWheel.getLon());
 
         angle = Point.findAngle(backWheel, frontWheel);
 
@@ -134,7 +138,7 @@ System.out.format("V%04d: FW T%d @ {%1.1f, %1.1f} BW T%d @ {%1.1f, %1.1f}\n", id
 
 
         if (!viewport.showDebug()) {
-            viewport.getGraphics().setColor(Color.GRAY);
+            viewport.getGraphics().setColor(this.col);
             viewport.getGraphics().fillPolygon(xPoints, yPoints, 4);
         }
         viewport.getGraphics().setColor(Color.WHITE);
@@ -158,8 +162,8 @@ System.out.format("V%04d: FW T%d @ {%1.1f, %1.1f} BW T%d @ {%1.1f, %1.1f}\n", id
             viewport.getGraphics().setColor(Color.YELLOW);
             viewport.getGraphics().drawArc(x1 - gfxWheelbase, y1 - gfxWheelbase, 2 * gfxWheelbase, 2 * gfxWheelbase, 0, 360);
 
-            viewport.getGraphics().setColor(Color.MAGENTA);
-            viewport.drawArc(backWheel, wheelbase, 0, Math.PI * 2);
+            //viewport.getGraphics().setColor(Color.MAGENTA);
+            //viewport.drawArc(backWheel, wheelbase, 0, Math.PI * 2);
 
             try {
                 for (PointContext wheel : Arrays.asList(frontWheel, backWheel)) {
@@ -173,14 +177,6 @@ System.out.format("V%04d: FW T%d @ {%1.1f, %1.1f} BW T%d @ {%1.1f, %1.1f}\n", id
                     viewport.setColor(Color.YELLOW);
                     viewport.getGraphics().drawString(s, viewport.getX(wheel) + 10, viewport.getY(wheel));
                 }
-
-                // TODO - remove this hack to test line stuff
-                StraightTrack st = (StraightTrack)(backWheel.getEnd().getParent().pathFrom(backWheel.getEnd()).getConnectedTrack());
-                PointContext pc = st.findIntersection(st.getEnd(0), backWheel, wheelbase, viewport);
-System.out.format("Measured length: %1.1f  (wheelbase: %1.1f)\n", Point.findDistance(backWheel, pc), wheelbase);
-
-                viewport.setColor(Color.MAGENTA);
-                viewport.drawLine(backWheel, pc);
             } catch (TrackException tx) {
                 tx.printStackTrace();
             }
