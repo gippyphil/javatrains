@@ -37,6 +37,51 @@ public class Point {
         return (min <= val && val <= max) || (max <= val && val <= min);
     }
 
+    public static Point findIntersection (double arcX, double arcY, double radius, double lineX1, double lineY1, double lineX2, double lineY2) {
+
+        double offsetY = lineY1 - arcY;
+        double offsetX = lineX1 - arcX;
+        double riseOverRun = (lineY2 - lineY1) / (lineX2 - lineX1);
+        double x1 = Double.NaN, y1 = Double.NaN, x2 = Double.NaN, y2 = Double.NaN;
+
+        boolean intersection1 = false;
+        boolean intersection2 = false;
+        if (Double.isFinite(riseOverRun)) {
+            double arcZeroYOffset = offsetY - (offsetX * riseOverRun);
+            double denominator = 1 + Math.pow(riseOverRun, 2);
+            double sqrtPart = Math.sqrt(Math.pow(radius, 2) + Math.pow(riseOverRun, 2) * Math.pow(radius, 2) - Math.pow(arcZeroYOffset, 2));
+            if (!Double.isNaN(sqrtPart))
+            {
+                x1 = ((-arcZeroYOffset * riseOverRun) + sqrtPart) / denominator;
+                y1 = arcY + arcZeroYOffset + (x1 * riseOverRun);
+                x1 += arcX;
+                x2 = -(((arcZeroYOffset * riseOverRun) + sqrtPart) / denominator);
+                y2 = arcY + arcZeroYOffset + (x2 * riseOverRun);
+                x2 += arcX;
+            }
+        }
+        else if (offsetX != 0.0) {
+            // use pythagorus' theorm using radius and X delta from arc.
+            x2 = x1 = lineX1; // or lineX2 - they are the same
+            y1 = arcY - Math.sqrt(Math.pow(radius, 2) - Math.pow(offsetX, 2));
+            y2 = arcY + Math.sqrt(Math.pow(radius, 2) - Math.pow(offsetX, 2));
+        }
+        else // (just +/- radius)
+        {
+            x1 = x2 = arcX;
+            y1 = arcY + radius;
+            y2 = arcY - radius;
+        }
+            
+        intersection1 = Point.inRange(lineX1, x1, lineX2) && Point.inRange(lineY1, y1, lineY2);
+        intersection2 = Point.inRange(lineX1, x2, lineX2) && Point.inRange(lineY1, y2, lineY2);
+        if (intersection1 && !intersection2)
+            return new Point(y1, x1);
+        else if (intersection2 && !intersection1)
+            return new Point(y2, x2);
+        else
+            return null;
+    }
 
     /**
      * @param startAngle the start angle

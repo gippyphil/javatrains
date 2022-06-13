@@ -119,14 +119,28 @@ public class TestCircles extends JFrame {
                 x2 = -(((arcZeroYOffset * riseOverRun) + sqrtPart) / denominator);
                 y2 = arcY + arcZeroYOffset + (x2 * riseOverRun);
                 x2 += arcX;
-            
-                intersection1 = inRange(lineX1, x1, lineX2) && inRange(lineY1, y1, lineY2);
-                intersection2 = inRange(lineX1, x2, lineX2) && inRange(lineY1, y2, lineY2);
             }
         }
-        else {
+        else if (offsetX != 0.0) {
+            // use pythagorus' theorm using radius and X delta from arc.
+            x2 = x1 = lineX1; // or lineX2 - they are the same
+            y1 = arcY - Math.sqrt(Math.pow(radius, 2) - Math.pow(offsetX, 2));
+            y2 = arcY + Math.sqrt(Math.pow(radius, 2) - Math.pow(offsetX, 2));
+
+            g.setColor(Color.white);
+            g.drawString("Verical Line!", zeroX + 30, zeroY + 30);
             // no idea!
         }
+        else // (just +/- radius)
+        {
+            x1 = x2 = arcX;
+            y1 = arcY + radius;
+            y2 = arcY - radius;
+        }
+
+                    
+        intersection1 = inRange(lineX1, x1, lineX2) && inRange(lineY1, y1, lineY2);
+        intersection2 = inRange(lineX1, x2, lineX2) && inRange(lineY1, y2, lineY2);
 
         g.setColor(c);
 

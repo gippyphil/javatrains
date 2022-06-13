@@ -120,7 +120,7 @@ public class TestWindow extends JFrame {
     private void testTurnouts () throws TrackException, PathException {
         Turnout lastTurnout, lastTurnout2 = null;
         StraightTrack placement = null;
-/*
+
         pieces.add(StraightTrack.create(new Point(5, 0), new Point(10, 0)));
         pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
 
@@ -129,21 +129,24 @@ public class TestWindow extends JFrame {
 
         pieces.add(StraightTrack.create(new Point(5, 20), new Point(10, 20)));
         pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_MEDIUM));
-*/
-        pieces.add(placement = StraightTrack.create(new Point(-190, 30), new Point(10, 0)));
+
+        pieces.add(StraightTrack.create(new Point(-190, 30), new Point(10, 30)));
         pieces.add(lastTurnout = Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
 
+
+
         pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(1), Turnout.RADIUS_FAST));
-        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_FAST, Math.toRadians(25)));
+        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout2.getDivergentArcRadians() * 2));
         pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
-        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(2), Track.Direction.RIGHT, Turnout.RADIUS_FAST, Math.toRadians(12.5)));
+        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(2), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout2.getDivergentArcRadians()));
         pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
         pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(2), Turnout.RADIUS_FAST));
-        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_FAST, Math.toRadians(12.5)));
+        pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout.getDivergentArcRadians()));
         pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
-        pieces.add(StraightTrack.create(lastTurnout2.getEnd(2), 200));
+        pieces.add(placement = StraightTrack.create(lastTurnout2.getEnd(2), 200));
 
-/*
+
+
         pieces.add(StraightTrack.create(new Point(5, 40), new Point(10, 40)));
         pieces.add(Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_SLOW));
 
@@ -152,15 +155,15 @@ public class TestWindow extends JFrame {
 
 
         pieces.add(StraightTrack.create(new Point(-5, 0), new Point(-10, 0)));
-        pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
+       // pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
 
         pieces.add(StraightTrack.create(new Point(-5, 10), new Point(-10, 10)));
         pieces.add(Turnout.create(pieces.get(pieces.size() - 1).getEnd(1), Track.Direction.LEFT, Turnout.RADIUS_FAST, Turnout.RADIUS_MEDIUM));
-*/
-        Consist test1 = Consist.createDebugConsist(30, true);
-        test1.place(placement.getEnd(0), 30);
-        consists.add(test1);
+
+        //Consist test1 = Consist.createDebugConsist(20, true);
+        //test1.place(placement.getEnd(1), 30);
+        //consists.add(test1);
 
     }
-
+ 
 }

@@ -82,34 +82,6 @@ public class CurvedTrack extends BasicTrack {
             v.getGraphics().drawArc(x, y, v.scaledInt(radius * 2), v.scaledInt(radius * 2), gfxStartAngle, gfxArcDegrees);
         }
 
-
-        if (v.showDebug() && false) {
-            try
-            {
-                for (TrackEnd end : ends)
-                {
-                    // draw a circle of 12m radius
-                    double rad2 = 12.0d;
-
-                    v.getGraphics().setColor(Color.CYAN);
-                    v.drawArc(end.getLoc(), rad2, Point.add(end.getAng(), -Math.PI / 2), Math.PI * 2);
-                    //v.getGraphics().setColor(Color.YELLOW);
-                    //v.drawArc(pivotPoint, radius, 0, Math.PI * 2);
-
-                    v.setColor(Color.ORANGE);
-                    v.drawLine(pivotPoint, end.getLoc());
-
-                    Point intersection = findIntersection(end, end.getLoc(), rad2);
-                    if (intersection != null)
-                    {
-                        v.setColor(end == ends.get(0) ? Color.GREEN : Color.RED);
-                        v.drawLine(pivotPoint, intersection);
-                    }
-                }
-            } catch (TrackException ex) {
-                ex.printStackTrace();
-            }
-        }
         super.render(v);
     }
 

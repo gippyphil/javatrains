@@ -16,6 +16,7 @@ public class Turnout extends Junction {
     protected BasicTrack divergentRoute; // TODO this doesn't work for triple turnouts?
     protected BasicTrack selectedRoute; // may be null during changes;
     protected Track.Direction divergeDirection;
+    protected double divergentArcRadians;
 
     // the fixed end for the entry side of the points
     protected TrackEnd entry;
@@ -44,17 +45,44 @@ public class Turnout extends Junction {
         Turnout t = new Turnout();
         t.divergeDirection = dir;
 
-        // TODO - work out arcRadians at a given arcRadius to clear main and divergent by Track.HORZ_CLEARANCE / 2
-        // use 12.5 degrees for now
-        double clearanceArcRadians = Math.toRadians(12.5);
+        // work out arcRadians at a given arcRadius to clear main and divergent by Track.HORZ_CLEARANCE / 2
+        // use 15 degrees by default
+        double clearanceArcRadians = Math.toRadians(15);
+        double mainLength = 50; 
+        if (radiusMain == RADIUS_STRAIGHT) {
+            Point p1 = new Point(end.getLoc(), Point.add(end.getAng(), (dir == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2)), Track.HORZ_CLEARANCE / 2);
+            Point p2 = new Point(p1, end.getAng(), 100000); // a long way ...
+
+            Point pArc = new Point(end.getLoc(), dir == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2, radiusDivergent);
+
+            Point p3 = Point.findIntersection(pArc.getLon(), pArc.getLat(), radiusDivergent, p1.getLon(), p1.getLat(), p2.getLon(), p2.getLat());
+            if (p3 == null)
+                throw new TrackException(null, "Failed to determine divergent track arc length.  This shouldn't happen!");
+            // Law of Cosines gives as the angle between A and B
+            double A = radiusDivergent;
+            double B = radiusDivergent;
+            double C = Point.findDistance(p1, p3);
+
+            double CosA = (B*B + A*A - C*C) / (2*B*A);
+            clearanceArcRadians = Math.acos(CosA);
+            t.divergentArcRadians = clearanceArcRadians;
+            mainLength = Point.findDistance(p1, p3);
+        }
+        // this needs more work not a linear relationship
+        if (radiusMain != RADIUS_STRAIGHT) {
+            // at 90 degrees
+            double radiusDelta = radiusMain - radiusDivergent;
+            if (radiusDelta < Track.HORZ_CLEARANCE / 2)
+                throw new TrackException(null, "Insufficent clearance between radii: " + radiusMain + ", " + radiusDivergent);
+            clearanceArcRadians = (Math.PI / 2) * ((Track.HORZ_CLEARANCE / 2) / radiusDelta);
+            clearanceArcRadians = (Math.PI / 2);
+        }
         t.divergentRoute = CurvedTrack.create(end, dir, radiusDivergent, clearanceArcRadians);
         t.components.add(t.divergentRoute);
         t.ends.add(t.divergentRoute.getEnd(1));
         //t.divergentRoute.getEnd(1).parent = t;
         // disconnect the previous track to avoid errors
         end.connectedEnd = null;
-        // TODO - work out how long the main piece needs to be.  use the diagonal distance for now
-        double mainLength = Point.findDistance(t.divergentRoute.getEnd(0).getLoc(), t.divergentRoute.getEnd(1).getLoc());
         if (radiusMain == RADIUS_STRAIGHT) {
             t.mainRoute = StraightTrack.create(end, mainLength);
         }
@@ -92,6 +120,10 @@ public class Turnout extends Junction {
 
     protected Turnout () {
         components = new ArrayList<>();
+    }
+
+    public double getDivergentArcRadians () {
+        return divergentArcRadians;
     }
 
     @Override
@@ -154,6 +186,18 @@ public class Turnout extends Junction {
             v.drawArc(ends.get(0).getLoc(), Track.GAUGE / 4, 0, Math.PI * 2);
         }
 
+        if (mainRoute instanceof StraightTrack) {
+            Point p1 = new Point(mainRoute.getEnd(0).getLoc(), divergeDirection == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2, Track.HORZ_CLEARANCE / 2);
+            Point p2 = new Point(p1, mainRoute.getEnd(1).getAng(), mainRoute.getLength());
+
+            CurvedTrack curve = (CurvedTrack)divergentRoute;
+            Point p3 = Point.findIntersection(curve.pivotPoint.getLon(), curve.pivotPoint.getLat(), curve.radius, p1.getLon(), p1.getLat(), p2.getLon(), p2.getLat());
+            v.setColor(Color.PINK);
+            if (p3 != null)
+                v.drawArc(p3, Track.GAUGE / 4, 0, 360);
+            v.drawLine(p1, p2);
+        }
+
         if (v.showDebug()) {
             Point labelPoint = new Point(ends.get(0).getLoc(), Point.subtract(ends.get(0).getAng(), Math.PI / 2), Track.GAUGE  * 1.5);
             v.getGraphics().setColor(ends.get(0).connectedEnd == null ? Color.RED : Color.GREEN);
@@ -172,11 +216,16 @@ public class Turnout extends Junction {
 
     @Override
     public PointContext getPointFrom (PointContext previousPoint, TrackEnd start, double distance) throws PathException, TrackException {
-        if (selectedRoute == null)
-            throw new TrackException(this, "Turnout does not have a route selected!");
+        if (!ends.contains(start))
+            throw new TrackException(String.format("%s does not contain end %s", this, start));
+        if (start == ends.get(0) && selectedRoute == null)
+            throw new PathException(this, "Turnout does not have a route selected!");
         if (start == ends.get(0))
             return selectedRoute.getPointFrom(previousPoint, selectedRoute.getEnd(0), distance);
-        //else
+        else
+            for (BasicTrack component : components)
+                if (component.getEnd(1) == start)
+                    return component.getPointFrom(previousPoint, start, distance);
 
         throw new TrackException(this, "Something has gone wrong with this turnouts ends and components: no path found from " + start);
     }
