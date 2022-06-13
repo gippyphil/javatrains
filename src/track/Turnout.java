@@ -21,7 +21,7 @@ public class Turnout extends Junction {
     // the fixed end for the entry side of the points
     protected TrackEnd entry;
 
-    public static final double RADIUS_STRAIGHT = 0d;
+    public static final double RADIUS_STRAIGHT = Double.POSITIVE_INFINITY;
     public static final double RADIUS_SLOW = 50d;
     public static final double RADIUS_MEDIUM = 100d;
     public static final double RADIUS_FAST = 150d;
@@ -48,12 +48,12 @@ public class Turnout extends Junction {
         // work out arcRadians at a given arcRadius to clear main and divergent by Track.HORZ_CLEARANCE / 2
         // use 15 degrees by default
         double clearanceArcRadians = Math.toRadians(15);
-        double mainLength = 50; 
-        if (radiusMain == RADIUS_STRAIGHT) {
+        double mainLength = Double.NaN; 
+        if (Double.isInfinite(radiusMain)) {
             Point p1 = new Point(end.getLoc(), Point.add(end.getAng(), (dir == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2)), Track.HORZ_CLEARANCE / 2);
             Point p2 = new Point(p1, end.getAng(), 100000); // a long way ...
 
-            Point pArc = new Point(end.getLoc(), dir == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2, radiusDivergent);
+            Point pArc = new Point(end.getLoc(), Point.add(end.getAng(), (dir == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2)), radiusDivergent);
 
             Point p3 = Point.findIntersection(pArc.getLon(), pArc.getLat(), radiusDivergent, p1.getLon(), p1.getLat(), p2.getLon(), p2.getLat());
             if (p3 == null)
@@ -69,7 +69,7 @@ public class Turnout extends Junction {
             mainLength = Point.findDistance(p1, p3);
         }
         // this needs more work not a linear relationship
-        if (radiusMain != RADIUS_STRAIGHT) {
+        if (Double.isFinite(radiusMain)) {
             // at 90 degrees
             double radiusDelta = radiusMain - radiusDivergent;
             if (radiusDelta < Track.HORZ_CLEARANCE / 2)
@@ -83,7 +83,7 @@ public class Turnout extends Junction {
         //t.divergentRoute.getEnd(1).parent = t;
         // disconnect the previous track to avoid errors
         end.connectedEnd = null;
-        if (radiusMain == RADIUS_STRAIGHT) {
+        if (Double.isInfinite(radiusMain)) {
             t.mainRoute = StraightTrack.create(end, mainLength);
         }
         else {
@@ -186,19 +186,19 @@ public class Turnout extends Junction {
             v.drawArc(ends.get(0).getLoc(), Track.GAUGE / 4, 0, Math.PI * 2);
         }
 
-        if (mainRoute instanceof StraightTrack) {
-            Point p1 = new Point(mainRoute.getEnd(0).getLoc(), divergeDirection == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2, Track.HORZ_CLEARANCE / 2);
-            Point p2 = new Point(p1, mainRoute.getEnd(1).getAng(), mainRoute.getLength());
-
-            CurvedTrack curve = (CurvedTrack)divergentRoute;
-            Point p3 = Point.findIntersection(curve.pivotPoint.getLon(), curve.pivotPoint.getLat(), curve.radius, p1.getLon(), p1.getLat(), p2.getLon(), p2.getLat());
-            v.setColor(Color.PINK);
-            if (p3 != null)
-                v.drawArc(p3, Track.GAUGE / 4, 0, 360);
-            v.drawLine(p1, p2);
-        }
-
         if (v.showDebug()) {
+            if (mainRoute instanceof StraightTrack) {
+                Point p1 = new Point(mainRoute.getEnd(0).getLoc(), divergeDirection == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2, Track.HORZ_CLEARANCE / 2);
+                Point p2 = new Point(p1, mainRoute.getEnd(1).getAng(), mainRoute.getLength());
+    
+                CurvedTrack curve = (CurvedTrack)divergentRoute;
+                Point p3 = Point.findIntersection(curve.pivotPoint.getLon(), curve.pivotPoint.getLat(), curve.radius, p1.getLon(), p1.getLat(), p2.getLon(), p2.getLat());
+                v.setColor(Color.PINK);
+                if (p3 != null)
+                    divergentRoute.getEnd(1).render(v);
+                v.drawLine(p1, p2);
+            }
+    
             Point labelPoint = new Point(ends.get(0).getLoc(), Point.subtract(ends.get(0).getAng(), Math.PI / 2), Track.GAUGE  * 1.5);
             v.getGraphics().setColor(ends.get(0).connectedEnd == null ? Color.RED : Color.GREEN);
             v.getGraphics().drawString(String.format("%03d", ends.get(0).id), v.getX(labelPoint), v.getY(labelPoint));
