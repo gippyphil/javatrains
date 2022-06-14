@@ -2,7 +2,6 @@ package track;
 
 import java.awt.Color;
 
-import path.Path;
 import path.PathException;
 import windows.Viewport;
 

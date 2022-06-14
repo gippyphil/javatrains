@@ -46,7 +46,9 @@ public class Point {
 
         boolean intersection1 = false;
         boolean intersection2 = false;
-        if (Double.isFinite(riseOverRun)) {
+        // this doesn't work due to rounding errors in Double
+        //if (Double.isFinite(riseOverRun)) {
+        if (Math.abs(lineX1 - lineX2) > 0.0000001) {
             double arcZeroYOffset = offsetY - (offsetX * riseOverRun);
             double denominator = 1 + Math.pow(riseOverRun, 2);
             double sqrtPart = Math.sqrt(Math.pow(radius, 2) + Math.pow(riseOverRun, 2) * Math.pow(radius, 2) - Math.pow(arcZeroYOffset, 2));

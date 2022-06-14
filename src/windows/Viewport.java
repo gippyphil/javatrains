@@ -155,6 +155,10 @@ System.out.format("New scale is %1.2f\n", scale);
 
     }
 
+    public boolean isLargeScale () {
+        return scale > 5;
+    }
+
     public boolean showDebug() {
         return this.showDebug;
     }

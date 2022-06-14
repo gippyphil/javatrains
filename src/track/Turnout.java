@@ -35,11 +35,10 @@ public class Turnout extends Junction {
         return Turnout.create(end, Track.Direction.RIGHT, RADIUS_STRAIGHT, radiusDivergent);
     }
 
-    // TODO doesn't handle Wyes
     public static Turnout create (TrackEnd end, Direction dir, double radiusMain, double radiusDivergent) throws TrackException {
         if (Double.isInfinite(radiusDivergent))
             throw new TrackException(null, "Cannot create turnout with a straight divergent leg");
-        if (radiusMain != RADIUS_STRAIGHT && radiusDivergent > radiusMain)
+        if ((radiusMain != RADIUS_STRAIGHT && dir != Track.Direction.WYE) && radiusDivergent > radiusMain)
             throw new TrackException(null, "Cannot create a curved turnout with a divergent radius greater than the main radius");
             
         Turnout t = new Turnout();
@@ -78,12 +77,12 @@ public class Turnout extends Junction {
         if (Double.isFinite(radiusMain)) {
             // at 90 degrees
             double radiusDelta = radiusMain - radiusDivergent;
-            if (radiusDelta < Track.HORZ_CLEARANCE / 2)
+            if (dir != Track.Direction.WYE && radiusDelta < Track.HORZ_CLEARANCE / 2)
                 throw new TrackException(null, "Insufficent clearance between radii: " + radiusMain + ", " + radiusDivergent);
             clearanceArcRadians = (Math.PI / 2) * ((Track.HORZ_CLEARANCE / 2) / radiusDelta);
             clearanceArcRadians = (Math.PI / 2);
         }
-        t.divergentRoute = CurvedTrack.create(end, dir, radiusDivergent, clearanceArcRadians);
+        t.divergentRoute = CurvedTrack.create(end, dir == Track.Direction.WYE ? Track.Direction.RIGHT : dir, radiusDivergent, clearanceArcRadians);
         t.components.add(t.divergentRoute);
         t.ends.add(t.divergentRoute.getEnd(1));
         //t.divergentRoute.getEnd(1).parent = t;
@@ -93,7 +92,7 @@ public class Turnout extends Junction {
             t.mainRoute = StraightTrack.create(end, mainLength);
         }
         else {
-            t.mainRoute = CurvedTrack.create(end, dir, radiusMain, clearanceArcRadians);
+            t.mainRoute = CurvedTrack.create(end, dir == Track.Direction.WYE ? Track.Direction.LEFT : dir, radiusMain, clearanceArcRadians);
         }
         t.components.add(t.mainRoute);
         t.ends.add(0, t.mainRoute.getEnd(1));
@@ -193,29 +192,35 @@ public class Turnout extends Junction {
         }
 
         if (v.showDebug()) {
-            if (mainRoute instanceof StraightTrack) {
+            /*if (mainRoute instanceof StraightTrack) {
                 Point p1 = new Point(mainRoute.getEnd(0).getLoc(), Point.add(mainRoute.getEnd(1).getAng(), (divergeDirection == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2)), Track.HORZ_CLEARANCE / 2);
                 Point p2 = new Point(p1, mainRoute.getEnd(1).getAng(), mainRoute.getLength());
     
                 CurvedTrack curve = (CurvedTrack)divergentRoute;
                 Point p3 = Point.findIntersection(curve.pivotPoint.getLon(), curve.pivotPoint.getLat(), curve.radius, p1.getLon(), p1.getLat(), p2.getLon(), p2.getLat());
-                v.setColor(Color.PINK);
                 if (p3 != null)
                     divergentRoute.getEnd(1).render(v);
                 v.drawLine(p1, p2);
+            }*/
+            for (TrackEnd end : ends)
+            {
+                if (end.connectedEnd == null)
+                    end.render(v);
             }
-    
             Point labelPoint = new Point(ends.get(0).getLoc(), Point.subtract(ends.get(0).getAng(), Math.PI / 2), Track.GAUGE  * 1.5);
             v.getGraphics().setColor(ends.get(0).connectedEnd == null ? Color.RED : Color.GREEN);
-            v.getGraphics().drawString(String.format("%03d", ends.get(0).id), v.getX(labelPoint), v.getY(labelPoint));
+            if (v.isLargeScale())
+                v.getGraphics().drawString(String.format("%03d", ends.get(0).id), v.getX(labelPoint), v.getY(labelPoint));
             for (BasicTrack comp : components) {
                 Point textPoint = new Point(comp.getEnd(0).getLoc(), Point.add(comp.getEnd(0).getAng(), (comp == mainRoute ^ divergeDirection == Direction.RIGHT) ? -Math.PI * 1.25 : Math.PI * 1.25), Track.GAUGE * 2);
                 v.setColor(Color.ORANGE);
-                v.getGraphics().drawString(String.format("%03d", comp.getEnd(0).id), v.getX(textPoint), v.getY(textPoint));
+                if (v.isLargeScale())
+                    v.getGraphics().drawString(String.format("%03d", comp.getEnd(0).id), v.getX(textPoint), v.getY(textPoint));
 
                 labelPoint = new Point(comp.getEnd(1).getLoc(), Point.subtract(comp.getEnd(1).getAng(), Math.PI / 2), Track.GAUGE  * 1.5);
                 v.getGraphics().setColor(comp.getEnd(1).connectedEnd == null ? Color.RED : Color.GREEN);
-                v.getGraphics().drawString(String.format("%03d", comp.getEnd(1).id), v.getX(labelPoint), v.getY(labelPoint));
+                if (v.isLargeScale())
+                    v.getGraphics().drawString(String.format("%03d", comp.getEnd(1).id), v.getX(labelPoint), v.getY(labelPoint));
             }
         }
     }

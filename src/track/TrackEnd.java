@@ -76,7 +76,7 @@ public class TrackEnd {
     public void render (Viewport v)
     {
         if (v.showDebug()) {
-            final int LEN = v.scaledInt(3);
+            final int LEN = v.scaledInt(Track.HORZ_CLEARANCE / 2);
             final int x = v.getX(getLoc());
             final int y = v.getY(getLoc());
     
@@ -91,7 +91,8 @@ public class TrackEnd {
 
             v.getGraphics().setColor(this.connectedEnd == null ? Color.RED : Color.GREEN);
 //            v.getGraphics().drawString(String.format("%03d: %1.0f\u00B0 - %s", id, Math.toDegrees(ang), (this.connectedEnd == null ? "" : this.connectedEnd.parent.id)), x2, y2);
-            v.getGraphics().drawString(String.format("%03d", id), x2, y2);
+            if (v.isLargeScale())
+                v.getGraphics().drawString(String.format("%03d", id), x2, y2);
             
             v.getGraphics().setColor(Color.DARK_GRAY);
             v.getGraphics().drawLine(x1, y1, x2, y2);

@@ -12,7 +12,7 @@ public abstract class Track {
 
     public static final double HORZ_CLEARANCE = 4.0; // metres? between tracks
     
-    public enum Direction { LEFT, RIGHT };
+    public enum Direction { LEFT, RIGHT, WYE };
 
     private static  int nextID = 0; 
     public int id;

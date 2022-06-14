@@ -38,7 +38,8 @@ public abstract class BasicTrack extends Track {
             }
             Point textPoint = new Point(ends.get(1).getLoc(), Point.add(ends.get(1).getAng(), Math.PI * 0.75), Track.GAUGE * 2);
             v.setColor(Color.LIGHT_GRAY);
-            v.getGraphics().drawString("T" + id, v.getX(textPoint), v.getY(textPoint));
+            if (v.isLargeScale())
+                v.getGraphics().drawString("T" + id, v.getX(textPoint), v.getY(textPoint));
         }
     }
 
