@@ -45,7 +45,7 @@ public class Vehicle implements AnimationListener {
 
     protected Color col;
 
-    protected Vehicle (double length, double distanceToFrontWheel, double distanceToBackWheel)
+    public Vehicle (double length, double distanceToFrontWheel, double distanceToBackWheel)
     {
         this.length = length;
         this.distanceToFrontWheel = distanceToFrontWheel;

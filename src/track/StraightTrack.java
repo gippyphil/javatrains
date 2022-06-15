@@ -130,4 +130,5 @@ System.out.println("S" + id + ".getPointFrom(" + distance + ")");
             return this.findIntersection(end, previousPivot, distance, null);
         }
     }
+
 }

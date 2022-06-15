@@ -12,6 +12,10 @@ public abstract class BasicTrack extends Track {
     // set when this basic track is a component of a junction, etc
     protected Track parent;
 
+    public void setParent (Junction junction) {
+        parent = junction;
+    }
+    
     @Override
     public String toString () {
         return String.format("%03d:%s {%s -> %s (%1.3fm)}", id, this.getClass().getCanonicalName(), ends.get(0), ends.get(1), getLength());
