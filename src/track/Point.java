@@ -82,7 +82,7 @@ public class Point {
         else if (intersection2 && !intersection1)
             return new Point(y2, x2);
         else if (intersection2 && intersection1)
-            return null;
+            return null; // todo - return this somehow?
         else
             return null;
     }

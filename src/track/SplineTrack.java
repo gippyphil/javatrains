@@ -91,16 +91,20 @@ public class SplineTrack extends BasicTrack {
 
     @Override
     public PointContext getPointFrom(PointContext previousPivot, TrackEnd start, double distance) throws PathException, TrackException {
-System.out.println(String.format("Sp" + id + ": " + previousPivot + " --> %1.1f", distance));
         // iterate through from the end, and check each segment to see if it intersects with the arc of distance radius
         int startIndex = (start == getEnd(0)) ? 0 : splinePoints.size() - 1;
-        if (previousPivot == null)
-            previousPivot = new PointContext(start.getLoc(), this, start);
-        else if (previousPivot.getTrack() == this)
-            startIndex = findStartSplineIndex(previousPivot);
-            // todo - start index needs to be the closest segment to previousPoint
-        int step =  (start == getEnd(0)) ? 1 : -1;
         Point prevPoint = start.getLoc();
+        if (previousPivot == null) {
+System.out.println(String.format("Sp" + id + ": " + previousPivot + " --> %1.1f", distance));
+            previousPivot = new PointContext(start.getLoc(), this, start);
+        }
+        else if (previousPivot.getTrack() == this && previousPivot.getSplineIndex() >= 0) {
+System.out.println(String.format("Sp" + id + ": " + previousPivot + "[%d] --> %1.1f", previousPivot.getSplineIndex(), distance));
+            startIndex = previousPivot.getSplineIndex();
+            if (startIndex > 0)
+            prevPoint = splinePoints.get(startIndex - 1);
+        }
+        int step =  (start == getEnd(0)) ? 1 : -1;
         for (int i = startIndex; i >= 0 && i < splinePoints.size(); i += step) {
             Point point = splinePoints.get(i);
             double x1 = prevPoint.getLon();
@@ -110,8 +114,8 @@ System.out.println(String.format("Sp" + id + ": " + previousPivot + " --> %1.1f"
 
             Point result = Point.findIntersection(previousPivot.getLon(), previousPivot.getLat(), distance, x1, y1, x2, y2);
             if (result != null) {
-System.out.println("Found spline intersection at index: " + i);
-                return new PointContext(result, this, start);
+System.out.format("Found spline intersection %s at index: %d %s->%s\n", result, i, prevPoint, point);
+                return new PointContext(result, this, start, i);
             }
 
             prevPoint = point;
@@ -145,7 +149,7 @@ System.out.println("Found spline intersection at index: " + i);
         for (int i = startIndex; i >= 0 && i < splinePoints.size(); i += step) {
             Point point = splinePoints.get(i);
             double thisDistance = Point.findDistance(previousPivot, point);
-System.out.println(String.format("%02d: %1.1f > %1.1f ? ", i, thisDistance, minDistance));            
+System.out.println(String.format("%02d: %1.1f < %1.1f ? ", i, thisDistance, minDistance));            
             // getting further away!
             if (thisDistance > minDistance)
                 return lastI;
@@ -169,17 +173,21 @@ System.out.println(String.format("%02d: %1.1f > %1.1f ? ", i, thisDistance, minD
             Point lastRail1 = new Point(getEnd(0).getLoc(), getEnd(0).getAng() + Math.PI * 1.5, GAUGE / 2);
             Point lastRail2 = new Point(getEnd(0).getLoc(), getEnd(0).getAng() - Math.PI * 1.5, GAUGE / 2);
             int step = v.isLargeScale() ? 1 : 4;
-System.out.println("Rendering " + splinePoints.size() / step);   
+//System.out.println("Rendering " + splinePoints.size() / step);   
             for (int i = 0; i < splinePoints.size(); i += step) {
+//if (i % 2 == 0)
                 v.drawLine(lastRail1, lastRail1 = splinePointsRail1.get(i));
+//lastRail1 = splinePointsRail1.get(i);
+//if (i % 2 == 1)
                 v.drawLine(lastRail2, lastRail2 = splinePointsRail2.get(i));
+//lastRail2 = splinePointsRail2.get(i);
             }
             v.drawLine(lastRail1, new Point(getEnd(1).getLoc(), getEnd(1).getAng() + Math.PI * 0.5, GAUGE / 2));
             v.drawLine(lastRail2, new Point(getEnd(1).getLoc(), getEnd(1).getAng() - Math.PI * 0.5, GAUGE / 2));
         }
         else {
             v.drawLine(getEnd(0).getLoc(), splinePoints.get(0));
-System.out.println("Rendering " + splinePoints.size() / 4);   
+//System.out.println("Rendering " + splinePoints.size() / 4);   
             Point lastPoint = getEnd(0).getLoc();
             for (int i = 0; i < splinePoints.size(); i += 4) {
                 

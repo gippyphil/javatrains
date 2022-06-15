@@ -55,7 +55,7 @@ public class Vehicle implements AnimationListener {
         this.col = new Color(127 + (int)Math.floor(Math.random() * 128), 127 + (int)Math.floor(Math.random() * 128), 127 + (int)Math.floor(Math.random() * 128));
 
         this.id = ++nextID;
-System.out.format("V%04d: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFrontWheel, distanceToBackWheel);
+System.out.format("V%04d: len %1.3fm (offsets: %1.3f, -%1.3f) wb: %1.3fm\n", id, length, distanceToFrontWheel, distanceToBackWheel, wheelbase);
     }
 
     public Track getFrontTrack () {
@@ -102,25 +102,26 @@ System.out.format("V%04d: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFrontW
     {
         // TODO (reversed vehicles in consists??)
 
-        System.out.println("Placing front wheel...");            
         if (previousPoint == null) {
+            System.out.format("Placing front wheel %1.1fm from end\n", distance);            
             // if we don't have a previous vehicle we can approximate
             frontWheel = start.getParent().getPointFrom(null, start, distance + Vehicle.GAP / 2 + distanceToFrontWheel);
         } else {
+            System.out.format("Placing front wheel %1.1fm from previous vehicle back wheel @ %s\n", distance, previousPoint);
             // if we do have a previous position then we place the front wheel from that
             frontWheel = start.getParent().getPointFrom(previousPoint, start, distance);
         }
         System.out.println("Placing back wheel...");            
         backWheel = frontWheel.getTrack().getPointFrom(frontWheel, frontWheel.getEnd(), wheelbase);
 
-//System.out.format("V%04d: FW T%d @ {%1.1f, %1.1f} BW T%d @ {%1.1f, %1.1f}\n", id, frontWheel.getTrack().id, frontWheel.getLat(), frontWheel.getLon(), backWheel.getTrack().id, backWheel.getLat(), backWheel.getLon());
+System.out.format("V%04d: FW T%d @ %s BW T%d @ %s == %1.3fm (%1.3fm)\n", id, frontWheel.getTrack().id, frontWheel, backWheel.getTrack().id, backWheel, Point.findDistance(frontWheel, backWheel), wheelbase);
 
         angle = Point.findAngle(backWheel, frontWheel);
 
         frontPoint = new Point(frontWheel, angle, distanceToFrontWheel + Vehicle.GAP / 2);
         backPoint = new Point(backWheel, Point.reverse(angle), distanceToBackWheel + Vehicle.GAP / 2);
 
-//System.out.format("V%04d: %s %s == %1.1f\n", id, frontPoint, backPoint, Point.findDistance(frontPoint, backPoint));
+System.out.format("V%04d: %s %s == %1.1f\n", id, frontPoint, backPoint, Point.findDistance(frontPoint, backPoint));
     }
 
     public void render(Viewport viewport)

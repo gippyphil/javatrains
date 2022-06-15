@@ -120,9 +120,12 @@ System.out.format("New scale is %1.2f\n", scale);
     {
         double mouseLat = getLat(mouseEvent.getY());
         double mouseLon = getLon(mouseEvent.getX());
+        centerOn(new Point(mouseLat, mouseLon));
+    }
 
-        leftLon = mouseLon - ((width / 2) / scale);
-        bottomLat = mouseLat - ((height / 2) / scale);
+    public void centerOn (Point p) {
+        leftLon = p.getLon() - ((width / 2) / scale);
+        bottomLat = p.getLat() - ((height / 2) / scale);
     }
 
     public double getLon (int x) {

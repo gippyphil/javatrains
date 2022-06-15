@@ -230,6 +230,7 @@ public class TestWindow extends JFrame {
         Consist splineTest = Consist.createDebugConsistToLength(s1.getLength(), false, 1.0);
         splineTest.place(s1.getEnd(0), 20);
         consists.add(splineTest);
+        viewport.centerOn(s1.getEnd(1).getLoc());
     }
  
 }
