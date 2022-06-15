@@ -113,7 +113,7 @@ public class Consist {
         for (Vehicle vehicle : vehicles) {
             if (prevVehicle != null) {
                 prevOffset = prevVehicle.distanceToBackWheel + Vehicle.GAP + vehicle.distanceToFrontWheel;
-//System.out.format("%01d -> %01d: %1.2f\n", prevVehicle.id, vehicle.id, prevOffset);
+System.out.format("%01d -> %01d: %1.2f\n", prevVehicle.id, vehicle.id, prevOffset);
             }
             vehicle.place(prevWheel, prevWheel == null ? start : prevWheel.getEnd(), prevOffset);
 

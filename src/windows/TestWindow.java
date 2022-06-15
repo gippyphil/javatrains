@@ -7,6 +7,7 @@ import path.PathException;
 import track.BasicTrack;
 import track.CurvedTrack;
 import track.Point;
+import track.SplineTrack;
 import track.StraightTrack;
 import track.Track;
 import track.TrackException;
@@ -216,6 +217,19 @@ public class TestWindow extends JFrame {
             consists.add(test);
         }
 
+
+
+
+
+        // splines
+        StraightTrack s1, s2;
+        pieces.add(s1 = StraightTrack.create(new Point(20, 80), new Point(60, 90)));
+        pieces.add(s2 = StraightTrack.create(new Point(105, 100), new Point(165, 100)));
+        pieces.add(SplineTrack.create(s1.getEnd(1), s2.getEnd(0)));
+
+        Consist splineTest = Consist.createDebugConsistToLength(s1.getLength(), false, 1.0);
+        splineTest.place(s1.getEnd(0), 20);
+        consists.add(splineTest);
     }
  
 }
