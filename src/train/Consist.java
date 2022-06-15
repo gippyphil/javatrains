@@ -28,7 +28,7 @@ public class Consist {
 
     public Consist addVehicleFront (Vehicle vehicle) {
         vehicles.addFirst(vehicle);
-        this.length += vehicle.length;
+        this.length += vehicle.length + Vehicle.GAP;
         return this;
     }
 
@@ -48,6 +48,28 @@ public class Consist {
         for (int i = 1; i < vehicleCount; i++)
         {
             len = randomizeLengths ? 10 + (Math.random() * 10) : 19.0; // 60'
+            offset = len * 0.13;
+            Vehicle nextVehicle = new Vehicle(len, offset, offset);
+            test.addVehicleBack(nextVehicle);
+        }
+
+        return test;
+    }
+
+    public static Consist createDebugConsistToLength (double totalLength, boolean randomizeLengths, double reliability)
+    {
+        double len = randomizeLengths ? 10 + (Math.random() * 10) : 19.0; // 60'
+        double offset = len * 0.13;
+        Vehicle firstVehicle = new Vehicle(len, offset, offset);
+        Consist test = new Consist("Debug Consist " + (++nextID), firstVehicle);
+
+        while (true)
+        {
+            len = randomizeLengths ? 10 + (Math.random() * 10) : 19.0; // 60'
+            if (test.length + len > totalLength)
+                break;
+            if (Math.random() > reliability)
+                break;
             offset = len * 0.13;
             Vehicle nextVehicle = new Vehicle(len, offset, offset);
             test.addVehicleBack(nextVehicle);
@@ -103,5 +125,9 @@ public class Consist {
     public void render (Viewport viewport) {
         for (Vehicle vehicle : vehicles)
             vehicle.render(viewport);
+    }
+
+    public double getLength () {
+        return length;
     }
 }

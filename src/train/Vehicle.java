@@ -145,7 +145,7 @@ System.out.format("V%04d: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFrontW
         viewport.getGraphics().drawPolygon(xPoints, yPoints, 4);
 
         // DEBUG ONLY!
-        if (viewport.showDebug()) {
+        if (viewport.showDebug() && viewport.isLargeScale()) {
             int x1 = viewport.getX(frontWheel);
             int y1 = viewport.getY(frontWheel);
             int x2 = viewport.getX(backWheel);
@@ -159,27 +159,11 @@ System.out.format("V%04d: %1.1fm (%1.1f, %1.1f)\n", id, length, distanceToFrontW
             viewport.getGraphics().drawArc(x2 - 2, y2 - 2, 4, 4, 0, 360);
             viewport.getGraphics().drawString("T" + backWheel.getTrack().id, x2, y2 + 10);
             
-            viewport.getGraphics().setColor(Color.YELLOW);
-            viewport.getGraphics().drawArc(x1 - gfxWheelbase, y1 - gfxWheelbase, 2 * gfxWheelbase, 2 * gfxWheelbase, 0, 360);
+            //viewport.getGraphics().setColor(Color.YELLOW);
+            //viewport.getGraphics().drawArc(x1 - gfxWheelbase, y1 - gfxWheelbase, 2 * gfxWheelbase, 2 * gfxWheelbase, 0, 360);
 
             //viewport.getGraphics().setColor(Color.MAGENTA);
             //viewport.drawArc(backWheel, wheelbase, 0, Math.PI * 2);
-
-            try {
-                for (PointContext wheel : Arrays.asList(frontWheel, backWheel)) {
-                    if (!(wheel.getTrack() instanceof CurvedTrack))
-                        continue;
-                    viewport.setColor(Color.CYAN);
-                    viewport.drawLine(wheel, ((CurvedTrack)wheel.getTrack()).pivotPoint);
-                    String s = String.format("%1.1f < %1.1f < %1.1f", Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel.getEnd().getLoc())),
-                                                                              Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel)),
-                                                                              Math.toDegrees(Point.findAngle(((CurvedTrack)wheel.getTrack()).pivotPoint, wheel.getTrack().pathFrom(wheel.getEnd()).getLoc())));
-                    viewport.setColor(Color.YELLOW);
-                    viewport.getGraphics().drawString(s, viewport.getX(wheel) + 10, viewport.getY(wheel));
-                }
-            } catch (TrackException tx) {
-                tx.printStackTrace();
-            }
         }
 
     }

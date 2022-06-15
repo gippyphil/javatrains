@@ -4,6 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.event.MouseInputAdapter;
 
 import path.PathException;
+import track.BasicTrack;
 import track.CurvedTrack;
 import track.Point;
 import track.StraightTrack;
@@ -123,29 +124,36 @@ public class TestWindow extends JFrame {
         Turnout lastTurnout, lastTurnout2 = null;
         StraightTrack placement = null;
         Turntable turntable = null;
+        List<BasicTrack> sidings = new ArrayList<>();
+        BasicTrack last = null;
 
         // yard ladder
-        pieces.add(StraightTrack.create(new Point(-500, -10), new Point(10, -10)));
+        pieces.add(last = StraightTrack.create(new Point(-500, -10), new Point(10, -10)));
         pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
-        pieces.add(StraightTrack.create(lastTurnout.getEnd(1), 520));
+        pieces.add(last = StraightTrack.create(lastTurnout.getEnd(1), 520));
+        sidings.add(last);
         pieces.add(lastTurnout = Turnout.createRight(lastTurnout.getEnd(2), Turnout.RADIUS_FAST));
-        pieces.add(StraightTrack.create(lastTurnout.getEnd(2), 490));
+        pieces.add(last = StraightTrack.create(lastTurnout.getEnd(2), 490));
+        sidings.add(last);
         pieces.add(lastTurnout = Turnout.createRight(lastTurnout.getEnd(1), Turnout.RADIUS_FAST));
-        pieces.add(StraightTrack.create(lastTurnout.getEnd(2), 460));
+        pieces.add(last = StraightTrack.create(lastTurnout.getEnd(2), 460));
+        sidings.add(last);
         pieces.add(lastTurnout = Turnout.createRight(lastTurnout.getEnd(1), Turnout.RADIUS_FAST));
-        pieces.add(StraightTrack.create(lastTurnout.getEnd(2), 430));
+        pieces.add(last = StraightTrack.create(lastTurnout.getEnd(2), 430));
+        sidings.add(last);
         pieces.add(lastTurnout = Turnout.createRight(lastTurnout.getEnd(1), Turnout.RADIUS_FAST));
-        pieces.add(placement = StraightTrack.create(lastTurnout.getEnd(2), 400));
-        pieces.add(CurvedTrack.create(lastTurnout.getEnd(1), Track.Direction.LEFT, Turnout.RADIUS_MEDIUM, Math.PI / 4 - lastTurnout.getDivergentArcRadians()));
-        pieces.add(turntable = Turntable.create(pieces.get(pieces.size() - 1).getEnd(1), 25, 20));
+        pieces.add(last = StraightTrack.create(lastTurnout.getEnd(2), 400));
+        sidings.add(last);
+        pieces.add(CurvedTrack.create(lastTurnout.getEnd(1), Track.Direction.LEFT, Turnout.RADIUS_MEDIUM, Math.PI / 3 - lastTurnout.getDivergentArcRadians()));
+        pieces.add(turntable = Turntable.create(pieces.get(pieces.size() - 1).getEnd(1), 28, 1 + (int)(Math.random() * 30)));
 
         for (int i = 1; i < turntable.getEnds().size(); i++) {
-            StraightTrack tt = StraightTrack.create(turntable.getEnd(i), 20);
+            StraightTrack tt = StraightTrack.create(turntable.getEnd(i), 25);
             pieces.add(tt);
 
-            if (Math.random() > 0.8) {
+            if (Math.random() > 0.75) {
                 Consist loco = new Consist("Loco" + i, new Vehicle(17.0, 2.4, 2.4));
-                loco.place(tt.getEnd((int)Math.round(Math.random())), 0);
+                loco.place(tt.getEnd((int)Math.round(Math.random())), 1 /*Math.random() * (tt.getLength() - loco.getLength())*/);
                 consists.add(loco);
             }
         }
@@ -165,13 +173,17 @@ public class TestWindow extends JFrame {
         // yard ladder
         pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(1), Turnout.RADIUS_FAST));
         pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, lastTurnout2.getDivergentArcRadians() * 2));
-        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
+        pieces.add(last = StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
+        sidings.add(last);
         pieces.add(CurvedTrack.create(lastTurnout2.getEnd(2), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout2.getDivergentArcRadians()));
-        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
+        pieces.add(last = StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
+        sidings.add(last);
         pieces.add(lastTurnout2 = Turnout.createRight(lastTurnout.getEnd(2), Turnout.RADIUS_FAST));
         pieces.add(CurvedTrack.create(lastTurnout2.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout.getDivergentArcRadians()));
-        pieces.add(StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
-        pieces.add(StraightTrack.create(lastTurnout2.getEnd(2), 200));
+        pieces.add(last = StraightTrack.create(pieces.get(pieces.size() - 1).getEnd(1), 200));
+        sidings.add(last);
+        pieces.add(last = StraightTrack.create(lastTurnout2.getEnd(2), 200));
+        sidings.add(last);
 
 
 
@@ -181,9 +193,11 @@ public class TestWindow extends JFrame {
         pieces.add(StraightTrack.create(new Point(5, 50), new Point(10, 50)));
         pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_SLOW));
 
+
         // Wye
         pieces.add(StraightTrack.create(new Point(5, 60), new Point(5, 65)));
         pieces.add(lastTurnout = Turnout.create(pieces.get(pieces.size() - 1).getEnd(1), Track.Direction.WYE, Turnout.RADIUS_MEDIUM, Turnout.RADIUS_MEDIUM));
+
 
 
         pieces.add(StraightTrack.create(new Point(-5, 0), new Point(-10, 0)));
@@ -192,9 +206,15 @@ public class TestWindow extends JFrame {
         pieces.add(StraightTrack.create(new Point(-5, 10), new Point(-10, 10)));
         pieces.add(Turnout.create(pieces.get(pieces.size() - 1).getEnd(1), Track.Direction.LEFT, Turnout.RADIUS_FAST, Turnout.RADIUS_MEDIUM));
 
-        Consist test1 = Consist.createDebugConsist(50, true);
-        test1.place(placement.getEnd(1), 0);
-        consists.add(test1);
+        for (BasicTrack siding : sidings) {
+            if (Math.random() > 0.8)
+                continue;
+
+            Consist test = Consist.createDebugConsistToLength(siding.getLength() * 0.9, true, 0.95);
+            double remainingLength = siding.getLength() * 0.9 - test.getLength();
+            test.place(siding.getEnd(1), remainingLength * Math.random());
+            consists.add(test);
+        }
 
     }
  
