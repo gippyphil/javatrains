@@ -195,24 +195,30 @@ public class TestWindow extends JFrame {
         pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_SLOW));
 
 
-        // Wye
-        pieces.add(StraightTrack.create(new Point(5, 60), new Point(5, 65)));
+        // Wyes
+        pieces.add(StraightTrack.create(new Point(5, 60), new Point(10, 60)));
+        pieces.add(lastTurnout = Turnout.create(pieces.get(pieces.size() - 1).getEnd(1), Track.Direction.WYE, Turnout.RADIUS_SLOW, Turnout.RADIUS_SLOW));
+
+        pieces.add(StraightTrack.create(new Point(5, 70), new Point(10, 70)));
         pieces.add(lastTurnout = Turnout.create(pieces.get(pieces.size() - 1).getEnd(1), Track.Direction.WYE, Turnout.RADIUS_MEDIUM, Turnout.RADIUS_MEDIUM));
 
+        pieces.add(StraightTrack.create(new Point(5, 80), new Point(10, 80)));
+        pieces.add(lastTurnout = Turnout.create(pieces.get(pieces.size() - 1).getEnd(1), Track.Direction.WYE, Turnout.RADIUS_FAST, Turnout.RADIUS_FAST));
 
 
-        pieces.add(StraightTrack.create(new Point(-5, 0), new Point(-10, 0)));
-        pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
 
         pieces.add(StraightTrack.create(new Point(-5, 10), new Point(-10, 10)));
+        pieces.add(Turnout.createRight(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
+
+        pieces.add(StraightTrack.create(new Point(-5, 60), new Point(-10, 60)));
         pieces.add(Turnout.create(pieces.get(pieces.size() - 1).getEnd(1), Track.Direction.LEFT, Turnout.RADIUS_FAST, Turnout.RADIUS_MEDIUM));
 
         for (BasicTrack siding : sidings) {
             if (Math.random() > 0.8)
                 continue;
 
-            Consist test = Consist.createDebugConsistToLength(siding.getLength() * 0.9, true, 0.95);
-            double remainingLength = siding.getLength() * 0.9 - test.getLength();
+            Consist test = Consist.createDebugConsistToLength(siding.getLength() * 0.8, true, 0.95);
+            double remainingLength = siding.getLength() * 0.8 - test.getLength();
             test.place(siding.getEnd(1), remainingLength * Math.random());
             consists.add(test);
         }
@@ -223,14 +229,14 @@ public class TestWindow extends JFrame {
 
         // splines
         StraightTrack s1, s2;
-        pieces.add(s1 = StraightTrack.create(new Point(20, 80), new Point(60, 90)));
-        pieces.add(s2 = StraightTrack.create(new Point(105, 100), new Point(165, 100)));
+        pieces.add(s1 = StraightTrack.create(new Point(20, 130), new Point(60, 130)));
+        pieces.add(s2 = StraightTrack.create(new Point(160, 115), new Point(195, 130)));
         pieces.add(SplineTrack.create(s1.getEnd(1), s2.getEnd(0)));
 
-        Consist splineTest = Consist.createDebugConsistToLength(s1.getLength(), false, 1.0);
-        splineTest.place(s1.getEnd(0), 20);
+        Consist splineTest = Consist.createDebugConsistToLength(s2.getLength(), false, 1.0);
+        splineTest.place(s2.getEnd(1), 30);
         consists.add(splineTest);
-        viewport.centerOn(s1.getEnd(1).getLoc());
+        viewport.centerOn(s2.getEnd(0).getLoc());
     }
  
 }

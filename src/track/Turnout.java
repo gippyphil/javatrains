@@ -40,7 +40,8 @@ public class Turnout extends Junction {
             throw new TrackException(null, "Cannot create turnout with a straight divergent leg");
         if ((radiusMain != RADIUS_STRAIGHT && dir != Track.Direction.WYE) && radiusDivergent > radiusMain)
             throw new TrackException(null, "Cannot create a curved turnout with a divergent radius greater than the main radius");
-            
+        if ((dir == Track.Direction.WYE && radiusMain != radiusDivergent))
+            throw new TrackException(null, "Cannot create a wye turnout with a divergent radius different to the main radius");
         Turnout t = new Turnout();
         t.divergeDirection = dir;
 
@@ -73,8 +74,30 @@ public class Turnout extends Junction {
                 mainLength = Point.findDistance(p1, p3);
             }
         }
+        else if (dir == Track.Direction.WYE) {
+            // main radius is RIGHT
+            Point p1 = new Point(end.getLoc(), Point.add(end.getAng(), Math.PI / 2), Track.HORZ_CLEARANCE / 4);
+            Point p2 = new Point(p1, end.getAng(), 100000); // a long way ...
+
+            Point pArc = new Point(end.getLoc(), Point.add(end.getAng(), Math.PI / 2), radiusMain);
+
+            Point p3 = Point.findIntersection(pArc.getLon(), pArc.getLat(), radiusMain, p1.getLon(), p1.getLat(), p2.getLon(), p2.getLat());
+            if (p3 == null) {
+                throw new TrackException(null, "Failed to determine divergent track arc length.  This shouldn't happen!");
+            }
+            else {
+                // Law of Cosines gives as the angle between A and B
+                double A = radiusMain;
+                double B = radiusMain;
+                double C = Point.findDistance(p1, p3);
+
+                double CosA = (B*B + A*A - C*C) / (2*B*A);
+                clearanceArcRadians = Math.acos(CosA);
+                t.divergentArcRadians = clearanceArcRadians;
+            }
+        }
         // this needs more work not a linear relationship
-        if (Double.isFinite(radiusMain)) {
+        if (dir != Track.Direction.WYE && Double.isFinite(radiusMain)) {
             // at 90 degrees
             double radiusDelta = radiusMain - radiusDivergent;
             if (dir != Track.Direction.WYE && radiusDelta < Track.HORZ_CLEARANCE / 2)
@@ -82,7 +105,7 @@ public class Turnout extends Junction {
             clearanceArcRadians = (Math.PI / 2) * ((Track.HORZ_CLEARANCE / 2) / radiusDelta);
             clearanceArcRadians = (Math.PI / 2);
         }
-        t.divergentRoute = CurvedTrack.create(end, dir == Track.Direction.WYE ? Track.Direction.RIGHT : dir, radiusDivergent, clearanceArcRadians);
+        t.divergentRoute = CurvedTrack.create(end, dir == Track.Direction.WYE ? Track.Direction.LEFT : dir, radiusDivergent, clearanceArcRadians);
         t.components.add(t.divergentRoute);
         t.ends.add(t.divergentRoute.getEnd(1));
         //t.divergentRoute.getEnd(1).parent = t;
@@ -92,7 +115,7 @@ public class Turnout extends Junction {
             t.mainRoute = StraightTrack.create(end, mainLength);
         }
         else {
-            t.mainRoute = CurvedTrack.create(end, dir == Track.Direction.WYE ? Track.Direction.LEFT : dir, radiusMain, clearanceArcRadians);
+            t.mainRoute = CurvedTrack.create(end, dir == Track.Direction.WYE ? Track.Direction.RIGHT : dir, radiusMain, clearanceArcRadians);
         }
         t.components.add(t.mainRoute);
         t.ends.add(0, t.mainRoute.getEnd(1));
@@ -207,6 +230,7 @@ public class Turnout extends Junction {
                 if (end.connectedEnd == null)
                     end.render(v);
             }
+            /*
             Point labelPoint = new Point(ends.get(0).getLoc(), Point.subtract(ends.get(0).getAng(), Math.PI / 2), Track.GAUGE  * 1.5);
             v.getGraphics().setColor(ends.get(0).connectedEnd == null ? Color.RED : Color.GREEN);
             if (v.isLargeScale())
@@ -222,6 +246,7 @@ public class Turnout extends Junction {
                 if (v.isLargeScale())
                     v.getGraphics().drawString(String.format("%03d", comp.getEnd(1).id), v.getX(labelPoint), v.getY(labelPoint));
             }
+            */
         }
     }
 

@@ -40,7 +40,7 @@ public class SplineTrack extends BasicTrack {
         
         spline.length = 0.0;
         Point prevP = spline.controlPoints[1];
-        for (double t = tStep; t <= 1.0 - tStep; t += tStep) {
+        for (double t = 0.0; t <= 1.0 - tStep; t += tStep) {
             double tt = Math.pow(t, 2);
             double ttt = Math.pow(t, 3);
 
