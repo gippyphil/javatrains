@@ -10,6 +10,7 @@ import track.Point;
 import track.SplineTrack;
 import track.StraightTrack;
 import track.Track;
+import track.TrackEnd;
 import track.TrackException;
 import track.Turnout;
 import track.Turntable;
@@ -71,8 +72,9 @@ public class TestWindow extends JFrame {
     
         pieces = new ArrayList<>();
         consists = new ArrayList<>();
-        testTurnouts();
+        //testTurnouts();
         //testCurves();
+        testAssembly();
 
 
         repaint();
@@ -238,5 +240,20 @@ public class TestWindow extends JFrame {
         consists.add(splineTest);
         viewport.centerOn(s2.getEnd(0).getLoc());
     }
- 
+
+    private void testAssembly () throws TrackException, PathException {
+        Turnout lastTurnout = null;
+        StraightTrack lastStraight = null;
+        CurvedTrack lastCurve = null;
+
+        // passing loop
+        pieces.add(lastStraight = StraightTrack.create(new Point(-100, -10), new Point(10, -10)));
+        pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
+        pieces.add(lastStraight = StraightTrack.create(lastTurnout.getEnd(1), 100));
+        pieces.add(lastCurve = CurvedTrack.create(lastTurnout.getEnd(2), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout.getDivergentArcRadians()));
+        pieces.add(lastStraight = StraightTrack.create(lastCurve.getEnd(1), 100));
+        pieces.add(lastCurve = CurvedTrack.create(lastStraight.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout.getDivergentArcRadians()));
+
+        pieces.add(lastTurnout = Turnout.createRight(TrackEnd.create(null, new Point(0, 0), 0), Turnout.RADIUS_FAST));
+    }
 }

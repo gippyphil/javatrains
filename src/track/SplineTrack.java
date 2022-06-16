@@ -3,8 +3,6 @@ package track;
 import java.util.Arrays;
 import java.util.List;
 
-import com.azul.crs.client.sysinfo.SystemInfoProvider.MemInfoKey;
-
 import java.util.ArrayList;
 
 import java.awt.Color;
@@ -95,11 +93,11 @@ public class SplineTrack extends BasicTrack {
         int startIndex = (start == getEnd(0)) ? 0 : splinePoints.size() - 1;
         Point prevPoint = start.getLoc();
         if (previousPivot == null) {
-System.out.println(String.format("Sp" + id + ": " + previousPivot + " --> %1.1f", distance));
+//System.out.println(String.format("Sp" + id + ": " + previousPivot + " --> %1.1f", distance));
             previousPivot = new PointContext(start.getLoc(), this, start);
         }
         else if (previousPivot.getTrack() == this && previousPivot.getSplineIndex() >= 0) {
-System.out.println(String.format("Sp" + id + ": " + previousPivot + "[%d] --> %1.1f", previousPivot.getSplineIndex(), distance));
+//System.out.println(String.format("Sp" + id + ": " + previousPivot + "[%d] --> %1.1f", previousPivot.getSplineIndex(), distance));
             startIndex = previousPivot.getSplineIndex();
             if (startIndex > 0)
             prevPoint = splinePoints.get(startIndex - 1);
@@ -114,7 +112,7 @@ System.out.println(String.format("Sp" + id + ": " + previousPivot + "[%d] --> %1
 
             Point result = Point.findIntersection(previousPivot.getLon(), previousPivot.getLat(), distance, x1, y1, x2, y2);
             if (result != null) {
-System.out.format("Found spline intersection %s at index: %d %s->%s\n", result, i, prevPoint, point);
+//System.out.format("Found spline intersection %s at index: %d %s->%s\n", result, i, prevPoint, point);
                 return new PointContext(result, this, start, i);
             }
 
@@ -149,7 +147,7 @@ System.out.format("Found spline intersection %s at index: %d %s->%s\n", result, 
         for (int i = startIndex; i >= 0 && i < splinePoints.size(); i += step) {
             Point point = splinePoints.get(i);
             double thisDistance = Point.findDistance(previousPivot, point);
-System.out.println(String.format("%02d: %1.1f < %1.1f ? ", i, thisDistance, minDistance));            
+//System.out.println(String.format("%02d: %1.1f < %1.1f ? ", i, thisDistance, minDistance));            
             // getting further away!
             if (thisDistance > minDistance)
                 return lastI;

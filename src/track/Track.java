@@ -58,4 +58,15 @@ public abstract class Track {
      */
     public abstract PointContext getPointFrom (PointContext previousPivot, TrackEnd start, double distance) throws PathException, TrackException;
 
+
+    /**
+     * Move and rotate this track so that sourceEnd on this track aligns and optionally connects with targetEnd.
+     * This will also move any other connected tracks to other Ends of this track
+     * @param sourceEnd the End on the track to move
+     * @param targetEnd the End on a different track to align and connect with
+     * @param connectEnds connect the ends logically
+     * @throws TrackException if the move is not impossible
+     */
+    public abstract void moveAndConnect (TrackEnd sourceEnd, TrackEnd targetEnd, boolean connectEnds) throws TrackException;
+
 }
