@@ -254,6 +254,13 @@ public class TestWindow extends JFrame {
         pieces.add(lastStraight = StraightTrack.create(lastCurve.getEnd(1), 100));
         pieces.add(lastCurve = CurvedTrack.create(lastStraight.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout.getDivergentArcRadians()));
 
-        pieces.add(lastTurnout = Turnout.createRight(TrackEnd.create(null, new Point(0, 0), 0), Turnout.RADIUS_FAST));
+
+        
+        pieces.add(lastTurnout = Turnout.createRight(TrackEnd.create(null, new Point(0, 0), 0), Turnout.RADIUS_SLOW));
+
+        pieces.add(lastStraight = StraightTrack.create(new Point(0, 10), new Point(30, 10)));
+        pieces.add(lastCurve = CurvedTrack.create(TrackEnd.create(null, new Point(0, 20), Math.PI / 3), Track.Direction.RIGHT, Turnout.RADIUS_SLOW, lastTurnout.getDivergentArcRadians()));
+        lastStraight.moveAndConnect(lastStraight.getEnd(1), lastTurnout.getEnd(1), true);
+        lastCurve.moveAndConnect(lastCurve.getEnd(1), lastTurnout.getEnd(2), true);
     }
 }

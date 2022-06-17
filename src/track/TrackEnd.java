@@ -68,6 +68,14 @@ public class TrackEnd {
         }
     }
 
+    public void moveAndConnect (TrackEnd target, boolean connect) throws TrackException {
+        loc.lat = target.loc.lat;
+        loc.lon = target.loc.lon;
+        ang = Point.reverse(target.ang);
+        if (connect)
+            connect(target);
+    }
+
     @Override
     public String toString () {
         return String.format("%04d: %s@%1.3f\u00B0", id, getLoc().toString(), Math.toDegrees(getAng()));
@@ -105,6 +113,11 @@ public class TrackEnd {
 
     public Track getConnectedTrack() {
         return connectedEnd != null ? connectedEnd.parent : null;
+    }
+
+    public void moveAndRotate(Point origin, RangeAndBearing rab, double addedRotation) {
+        loc.moveTo(new Point(origin, Point.subtract(rab.bearing, addedRotation), rab.range));
+        ang = Point.subtract(ang, addedRotation);
     }
 
 }

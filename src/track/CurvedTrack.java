@@ -20,6 +20,7 @@ public class CurvedTrack extends BasicTrack {
 
         double angleToCentre = Point.add(end.getAng(), dir == Direction.RIGHT ? Math.toRadians(90) : Math.toRadians(-90));
         t.pivotPoint = new Point((Math.cos(angleToCentre) * radius) + end.getLoc().lat, (Math.sin(angleToCentre) * radius) + end.getLoc().lon);
+        t.referencePoints.add(t.pivotPoint);
 
 //System.out.println("Curve PivotPoint: " + t.pivotPoint);        
 

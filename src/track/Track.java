@@ -1,7 +1,9 @@
 package track;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import path.PathException;
 import windows.Viewport;
@@ -21,7 +23,11 @@ public abstract class Track {
         id = ++nextID;
     }
 
+    // the external connection points of this track
     protected List<TrackEnd> ends = new ArrayList<>();
+
+    // the internal control points used for curve centres, splines, etc
+    protected List<Point> referencePoints = new ArrayList<>();
 
     public TrackEnd getEnd(int index) {
         return ends.get(index);
@@ -67,6 +73,40 @@ public abstract class Track {
      * @param connectEnds connect the ends logically
      * @throws TrackException if the move is not impossible
      */
-    public abstract void moveAndConnect (TrackEnd sourceEnd, TrackEnd targetEnd, boolean connectEnds) throws TrackException;
+    public void moveAndConnect (TrackEnd sourceEnd, TrackEnd targetEnd, boolean connectEnds) throws TrackException {
+        if (!ends.contains(sourceEnd))
+            throw new TrackException(this, "Doesn't contain " + sourceEnd);
+        if (ends.contains(targetEnd))
+            throw new TrackException(this, "Can't connect track to itself " + targetEnd);
+        // TODO - add some path type checks for connected tracks
+
+
+        // work out all the range and bearings relative to sourceEnd for all other ends and control points
+        Map<TrackEnd, RangeAndBearing> rangeAndBearingToEnds = new HashMap<>();
+        Map<Point, RangeAndBearing> rangeAndBearingToRefPoints = new HashMap<>();
+        ends.stream().filter(e -> e != sourceEnd).forEach(e -> {
+            rangeAndBearingToEnds.put(e, Point.findRangeAndBearing(sourceEnd.getLoc(), e.getLoc()));
+        });
+        referencePoints.forEach(rp -> {
+            rangeAndBearingToRefPoints.put(rp, Point.findRangeAndBearing(sourceEnd.getLoc(), rp));
+        });
+
+        // move and rotate the source Point
+        double rotationAngle = Point.reverse(sourceEnd.getAng()) - targetEnd.getAng();
+System.out.format("Rotating by %1.1f\u00A0\n", Math.toDegrees(rotationAngle));
+        sourceEnd.moveAndConnect(targetEnd, connectEnds);
+
+        // finally adjust all other ends
+        for (Map.Entry<TrackEnd, RangeAndBearing> entry : rangeAndBearingToEnds.entrySet()) {
+            entry.getKey().moveAndRotate(sourceEnd.getLoc(), entry.getValue(), rotationAngle);
+        }
+
+        // and the other reference points
+        // finally adjust all other ends
+        for (Map.Entry<Point, RangeAndBearing> entry : rangeAndBearingToRefPoints.entrySet()) {
+            entry.getKey().moveTo(new Point(sourceEnd.getLoc(), Point.subtract(entry.getValue().bearing, rotationAngle), entry.getValue().range));
+        }
+
+    }
 
 }

@@ -33,6 +33,13 @@ public class Point {
         return Math.sqrt(Math.pow(end.lat - start.lat, 2) + Math.pow(end.lon - start.lon, 2));
     }
 
+    public static RangeAndBearing findRangeAndBearing (Point start, Point end) {
+        return new RangeAndBearing (
+            findDistance(start, end),
+            findAngle(start, end)
+        );
+    }
+
     public static boolean inRange (double min, double val, double max) {
         return (min <= val && val <= max) || (max <= val && val <= min);
     }
@@ -139,5 +146,11 @@ public class Point {
 
     public double getAlt () {
         return alt;
+    }
+
+    public void moveTo (Point point) {
+        this.alt = point.alt;
+        this.lat = point.lat;
+        this.lon = point.lon;
     }
 }
