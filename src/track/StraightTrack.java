@@ -17,8 +17,8 @@ public class StraightTrack extends BasicTrack {
 
         t.length = Point.findDistance(start, end);
 
-        t.ends.add(TrackEnd.create(t, start, entryAngle));
-        t.ends.add(TrackEnd.create(t, end, exitAngle));
+        t.addEnd(TrackEnd.create(t, start, entryAngle));
+        t.addEnd(TrackEnd.create(t, end, exitAngle));
 
         return t;
     }
@@ -27,9 +27,8 @@ public class StraightTrack extends BasicTrack {
         StraightTrack t = new StraightTrack();
 
         t.length = length;
-        t.ends.add(TrackEnd.createAttached(t, end));
-        t.ends.add(TrackEnd.create(t, new Point(end, end.getAng(), length), end.getAng()));
-//        t.ends.add(TrackEnd.create(t, new Point((Math.cos(end.getAng()) * length) + end.getLoc().lat, (Math.sin(end.getAng()) * length) + end.getLoc().lon), end.getAng()));
+        t.addEnd(TrackEnd.createAttached(t, end));
+        t.addEnd(TrackEnd.create(t, new Point(end, end.getAng(), length), end.getAng()));
         t.getEnd(0).connect(end);
 
         System.out.println(t.ends.get(0) + " -> " + t.ends.get(1));

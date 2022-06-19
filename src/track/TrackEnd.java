@@ -119,4 +119,11 @@ public class TrackEnd extends Point {
         ang = Point.subtract(ang, addedRotation);
     }
 
+    public void disconnect() {
+        if (connectedEnd != null) {
+            connectedEnd.connectedEnd = null;
+            connectedEnd = null;
+        }
+    }
+
 }

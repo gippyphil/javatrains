@@ -16,11 +16,10 @@ public class CurvedTrack extends BasicTrack {
 
     public static CurvedTrack create (TrackEnd end, Direction dir, double radius, double arcRadians) throws TrackException {
         CurvedTrack t = new CurvedTrack();
-        t.ends.add(TrackEnd.createAttached(t, end));
+        t.addEnd(TrackEnd.createAttached(t, end));
 
         double angleToCentre = Point.add(end.getAng(), dir == Direction.RIGHT ? Math.toRadians(90) : Math.toRadians(-90));
-        t.pivotPoint = new Point((Math.cos(angleToCentre) * radius) + end.lat, (Math.sin(angleToCentre) * radius) + end.lon);
-        t.referencePoints.add(t.pivotPoint);
+        t.pivotPoint = t.addReferencePoint(new Point((Math.cos(angleToCentre) * radius) + end.lat, (Math.sin(angleToCentre) * radius) + end.lon));
 
 //System.out.println("Curve PivotPoint: " + t.pivotPoint);        
 
@@ -28,12 +27,12 @@ public class CurvedTrack extends BasicTrack {
         {
 //System.out.format("RH Curve angles: %1.3f > %1.3f\n", Math.toDegrees(Point.subtract(end.ang, 0)), Math.toDegrees(Point.add(end.ang, arcRadians)));
 
-            t.ends.add(TrackEnd.create(t, new Point((Math.cos(Point.add(arcRadians, end.getAng(), -Math.PI / 2)) * radius) + t.pivotPoint.lat, (Math.sin(Point.add(arcRadians, end.getAng(), -Math.PI / 2)) * radius) + t.pivotPoint.lon), Point.add(end.getAng(), arcRadians)));
+            t.addEnd(TrackEnd.create(t, new Point((Math.cos(Point.add(arcRadians, end.getAng(), -Math.PI / 2)) * radius) + t.pivotPoint.lat, (Math.sin(Point.add(arcRadians, end.getAng(), -Math.PI / 2)) * radius) + t.pivotPoint.lon), Point.add(end.getAng(), arcRadians)));
         }
         else
         {
 //System.out.format("LH Curve angles: %1.3f > %1.3f\n", Math.toDegrees(end.ang), Math.toDegrees(Point.subtract(end.ang, arcRadians)));
-            t.ends.add(TrackEnd.create(t, new Point((Math.cos(Point.subtract(end.getAng(), arcRadians, -Math.PI / 2)) * radius) + t.pivotPoint.lat, (Math.sin(Point.subtract(end.getAng(), arcRadians, -Math.PI / 2)) * radius) + t.pivotPoint.lon), Point.subtract(end.getAng(), arcRadians)));
+            t.addEnd(TrackEnd.create(t, new Point((Math.cos(Point.subtract(end.getAng(), arcRadians, -Math.PI / 2)) * radius) + t.pivotPoint.lat, (Math.sin(Point.subtract(end.getAng(), arcRadians, -Math.PI / 2)) * radius) + t.pivotPoint.lon), Point.subtract(end.getAng(), arcRadians)));
         }
         t.length = radius * arcRadians;
         t.radius = radius;

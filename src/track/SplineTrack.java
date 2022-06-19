@@ -22,14 +22,14 @@ public class SplineTrack extends BasicTrack {
 
     public static SplineTrack create (TrackEnd start, TrackEnd end) throws TrackException {
         SplineTrack spline = new SplineTrack();
-        spline.ends.add(TrackEnd.createAttached(spline, start));
-        spline.ends.add(TrackEnd.createAttached(spline, end));
+        spline.addEnd(TrackEnd.createAttached(spline, start));
+        spline.addEnd(TrackEnd.createAttached(spline, end));
         double straightLineDistance = Point.findDistance(start, end);
 
-        spline.controlPoints[0] = new Point(spline.getEnd(0), spline.getEnd(0).getAng(), straightLineDistance * 2.5);
-        spline.controlPoints[1] = spline.getEnd(0).clone();
-        spline.controlPoints[2] = spline.getEnd(1).clone();
-        spline.controlPoints[3] = new Point(spline.getEnd(1), spline.getEnd(1).getAng(), straightLineDistance * 2.5);
+        spline.controlPoints[0] = spline.addReferencePoint(new Point(spline.getEnd(0), spline.getEnd(0).getAng(), straightLineDistance * 2.5));
+        spline.controlPoints[1] = spline.addReferencePoint(spline.getEnd(0).clone());
+        spline.controlPoints[2] = spline.addReferencePoint(spline.getEnd(1).clone());
+        spline.controlPoints[3] = spline.addReferencePoint(new Point(spline.getEnd(1), spline.getEnd(1).getAng(), straightLineDistance * 2.5));
 
         // two points per metre?
         int pCount = (int)Math.floor(straightLineDistance * 1);
@@ -37,7 +37,7 @@ public class SplineTrack extends BasicTrack {
         
         spline.length = 0.0;
         Point prevP = spline.controlPoints[1];
-        for (double t = 0.0; t <= 1.0 - tStep; t += tStep) {
+        for (double t = tStep; t <= 1.0 - tStep; t += tStep) {
             double tt = Math.pow(t, 2);
             double ttt = Math.pow(t, 3);
 
@@ -62,9 +62,9 @@ public class SplineTrack extends BasicTrack {
             double angle = Point.findAngle(prevP, p);
             spline.length += Point.findDistance(prevP, p);
 //System.out.format("   %1.3f", angle); System.out.println();
-            spline.splinePoints.add(p);
-            spline.splinePointsRail1.add(new Point(p, angle + Math.PI * 0.5, GAUGE / 2));
-            spline.splinePointsRail2.add(new Point(p, angle - Math.PI * 0.5, GAUGE / 2));
+            spline.splinePoints.add(spline.addReferencePoint(p));
+            spline.splinePointsRail1.add(spline.addReferencePoint(new Point(p, angle + Math.PI * 0.5, GAUGE / 2)));
+            spline.splinePointsRail2.add(spline.addReferencePoint(new Point(p, angle - Math.PI * 0.5, GAUGE / 2)));
 
             prevP = p;
         }
@@ -167,24 +167,19 @@ public class SplineTrack extends BasicTrack {
         v.setColor(Color.GRAY);
         if (v.showTwoRails()) {
             // add 270 degrees because end is pointing away from the spline
-            Point lastRail1 = new Point(getEnd(0), getEnd(0).getAng() + Math.PI * 1.5, GAUGE / 2);
-            Point lastRail2 = new Point(getEnd(0), getEnd(0).getAng() - Math.PI * 1.5, GAUGE / 2);
+            Point lastRail1 = new Point(getEnd(0), Point.reverse(getEnd(0).getAng()) + Math.PI * 0.5, GAUGE / 2);
+            Point lastRail2 = new Point(getEnd(0), Point.reverse(getEnd(0).getAng()) - Math.PI * 0.5, GAUGE / 2);
             int step = v.isLargeScale() ? 1 : 4;
-//System.out.println("Rendering " + splinePoints.size() / step);   
+            //System.out.println("Rendering " + splinePoints.size() / step);   
             for (int i = 0; i < splinePoints.size(); i += step) {
-//if (i % 2 == 0)
                 v.drawLine(lastRail1, lastRail1 = splinePointsRail1.get(i));
-//lastRail1 = splinePointsRail1.get(i);
-//if (i % 2 == 1)
                 v.drawLine(lastRail2, lastRail2 = splinePointsRail2.get(i));
-//lastRail2 = splinePointsRail2.get(i);
             }
             v.drawLine(lastRail1, new Point(getEnd(1), getEnd(1).getAng() + Math.PI * 0.5, GAUGE / 2));
             v.drawLine(lastRail2, new Point(getEnd(1), getEnd(1).getAng() - Math.PI * 0.5, GAUGE / 2));
         }
         else {
             v.drawLine(getEnd(0), splinePoints.get(0));
-//System.out.println("Rendering " + splinePoints.size() / 4);   
             Point lastPoint = getEnd(0);
             for (int i = 0; i < splinePoints.size(); i += 4) {
                 

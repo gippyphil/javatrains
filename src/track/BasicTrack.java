@@ -14,6 +14,7 @@ public abstract class BasicTrack extends Track {
 
     public void setParent (Junction junction) {
         parent = junction;
+        junction.addReferencePointsFrom(this);
     }
     
     @Override

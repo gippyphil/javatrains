@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import path.PathException;
 import windows.Viewport;
@@ -27,7 +28,7 @@ public abstract class Track {
     protected List<TrackEnd> ends = new ArrayList<>();
 
     // the internal control points used for curve centres, splines, etc
-    protected List<Point> referencePoints = new ArrayList<>();
+    private List<Point> referencePoints = new ArrayList<>();
 
     public TrackEnd getEnd(int index) {
         return ends.get(index);
@@ -37,6 +38,28 @@ public abstract class Track {
 
     public List<TrackEnd> getEnds () {
         return ends;
+    }
+
+    protected TrackEnd addEnd (TrackEnd e) {
+        ends.add(e);
+        addReferencePoint(e);
+        return e;
+    }
+
+    protected TrackEnd addEndFirst (TrackEnd e) {
+        ends.add(0, e);
+        addReferencePoint(e);
+        return e;
+    }
+
+    protected Point addReferencePoint (Point p) {
+        if (!referencePoints.contains(p))
+            referencePoints.add(p);
+        return p;
+    }
+
+    protected Stream<Point> referencePointStream () {
+        return referencePoints.stream();
     }
 
     /**
@@ -82,12 +105,8 @@ public abstract class Track {
 
 
         // work out all the range and bearings relative to sourceEnd for all other ends and control points
-        Map<TrackEnd, RangeAndBearing> rangeAndBearingToEnds = new HashMap<>();
         Map<Point, RangeAndBearing> rangeAndBearingToRefPoints = new HashMap<>();
-        ends.stream().filter(e -> e != sourceEnd).forEach(e -> {
-            rangeAndBearingToEnds.put(e, Point.findRangeAndBearing(sourceEnd, e));
-        });
-        referencePoints.forEach(rp -> {
+        referencePoints.stream().distinct().filter(e -> e != sourceEnd).forEach(rp -> {
             rangeAndBearingToRefPoints.put(rp, Point.findRangeAndBearing(sourceEnd, rp));
         });
 
@@ -96,15 +115,15 @@ public abstract class Track {
 System.out.format("Rotating by %1.1f\u00A0\n", Math.toDegrees(rotationAngle));
         sourceEnd.moveAndConnect(targetEnd, connectEnds);
 
-        // finally adjust all other ends
-        for (Map.Entry<TrackEnd, RangeAndBearing> entry : rangeAndBearingToEnds.entrySet()) {
-            entry.getKey().moveAndRotate(sourceEnd, entry.getValue(), rotationAngle);
-        }
-
         // and the other reference points
         // finally adjust all other ends
         for (Map.Entry<Point, RangeAndBearing> entry : rangeAndBearingToRefPoints.entrySet()) {
-            entry.getKey().moveTo(new Point(sourceEnd, Point.subtract(entry.getValue().bearing, rotationAngle), entry.getValue().range));
+            if (entry.getKey() == sourceEnd)
+                continue;
+            if (entry.getKey() instanceof TrackEnd)
+                ((TrackEnd)entry.getKey()).moveAndRotate(sourceEnd, entry.getValue(), rotationAngle);
+            else
+                entry.getKey().moveTo(new Point(sourceEnd, Point.subtract(entry.getValue().bearing, rotationAngle), entry.getValue().range));
         }
 
     }

@@ -1,11 +1,14 @@
 package track;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import animation.AnimationListener;
 import path.PathException;
 
 public abstract class Junction extends Track implements AnimationListener {
+
+    protected List<BasicTrack> components = new ArrayList<>();
 
     /**
      * Configures this junction to provide a path between the specifed ends
@@ -45,4 +48,7 @@ public abstract class Junction extends Track implements AnimationListener {
      */
     public abstract List<BasicTrack> tracksFrom (TrackEnd start) throws TrackException;
 
+    protected void addReferencePointsFrom (BasicTrack e) {
+        e.referencePointStream().forEach(p -> addReferencePoint(p));
+    }
 }

@@ -242,25 +242,37 @@ public class TestWindow extends JFrame {
     }
 
     private void testAssembly () throws TrackException, PathException {
-        Turnout lastTurnout = null;
-        StraightTrack lastStraight = null;
+        Turnout lastTurnout, lastTurnout2, lastTurnout3 = null;
+        StraightTrack lastStraight, mainStraight, passingStraight = null;
         CurvedTrack lastCurve = null;
+        Turntable turntable = null;
 
         // passing loop
         pieces.add(lastStraight = StraightTrack.create(new Point(-100, -10), new Point(10, -10)));
         pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
-        pieces.add(lastStraight = StraightTrack.create(lastTurnout.getEnd(1), 100));
+        pieces.add(mainStraight = StraightTrack.create(lastTurnout.getEnd(1), 100));
         pieces.add(lastCurve = CurvedTrack.create(lastTurnout.getEnd(2), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout.getDivergentArcRadians()));
-        pieces.add(lastStraight = StraightTrack.create(lastCurve.getEnd(1), 100));
-        pieces.add(lastCurve = CurvedTrack.create(lastStraight.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout.getDivergentArcRadians()));
+        pieces.add(passingStraight = StraightTrack.create(lastCurve.getEnd(1), 100));
+        pieces.add(lastCurve = CurvedTrack.create(passingStraight.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout.getDivergentArcRadians()));
 
+
+        pieces.add(lastTurnout = Turnout.createRight(null, Turnout.RADIUS_FAST));
+        lastTurnout.moveAndConnect(lastTurnout.getEnd(2), lastCurve.getEnd(1), true);
 
         
-        pieces.add(lastTurnout = Turnout.createRight(TrackEnd.create(null, new Point(0, 0), 0), Turnout.RADIUS_SLOW));
+        pieces.add(lastTurnout2 = Turnout.createLeft(null, Turnout.RADIUS_SLOW));
+        lastTurnout2.moveAndConnect(lastTurnout2.getEnd(1), mainStraight.getEnd(1), true);
+        pieces.add(lastTurnout3 = Turnout.createLeft(null, Turnout.RADIUS_SLOW));
+        lastTurnout3.moveAndConnect(lastTurnout3.getEnd(1), lastTurnout2.getEnd(0), true);
 
-        pieces.add(lastStraight = StraightTrack.create(new Point(0, 10), new Point(30, 10)));
-        pieces.add(lastCurve = CurvedTrack.create(TrackEnd.create(null, new Point(0, 20), Math.PI / 3), Track.Direction.RIGHT, Turnout.RADIUS_SLOW, lastTurnout.getDivergentArcRadians()));
-        lastStraight.moveAndConnect(lastStraight.getEnd(1), lastTurnout.getEnd(1), true);
-        lastCurve.moveAndConnect(lastCurve.getEnd(1), lastTurnout.getEnd(2), true);
+        pieces.add(lastCurve = CurvedTrack.create(lastTurnout2.getEnd(2), Track.Direction.LEFT, Turnout.RADIUS_SLOW, Math.PI / 4 - lastTurnout2.getDivergentArcRadians()));
+        pieces.add(turntable = Turntable.create(lastCurve.getEnd(1), 16, 2, 6));
+        pieces.add(SplineTrack.create(lastTurnout3.getEnd(2), turntable.getEntranceEnd(1)));
+        for (TrackEnd exit : turntable.getExitEnds())
+            pieces.add(StraightTrack.create(exit, 20));
+
+
+        pieces.add(SplineTrack.create(lastTurnout.getEnd(1), lastTurnout3.getEnd(0)));
+        //pieces.add(SplineTrack.create(mainStraight.getEnd(1), lastTurnout.getEnd(1)));
     }
 }

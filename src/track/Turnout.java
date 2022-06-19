@@ -9,8 +9,6 @@ import windows.Viewport;
 
 public class Turnout extends Junction {
 
-    // a turnout is basically two (or three?) different tracks
-    protected List<BasicTrack> components;
     // some pointers into that list
     protected BasicTrack mainRoute;
     protected BasicTrack divergentRoute; // TODO this doesn't work for triple turnouts?
@@ -36,6 +34,11 @@ public class Turnout extends Junction {
     }
 
     public static Turnout create (TrackEnd end, Direction dir, double radiusMain, double radiusDivergent) throws TrackException {
+        final TrackEnd throwawayEnd;
+        if (end == null)
+            end = throwawayEnd = new TrackEnd(null, 0, 0, 0);
+        else
+            throwawayEnd = null;
         if (Double.isInfinite(radiusDivergent))
             throw new TrackException(null, "Cannot create turnout with a straight divergent leg");
         if ((radiusMain != RADIUS_STRAIGHT && dir != Track.Direction.WYE) && radiusDivergent > radiusMain)
@@ -107,10 +110,10 @@ public class Turnout extends Junction {
         }
         t.divergentRoute = CurvedTrack.create(end, dir == Track.Direction.WYE ? Track.Direction.LEFT : dir, radiusDivergent, clearanceArcRadians);
         t.components.add(t.divergentRoute);
-        t.ends.add(t.divergentRoute.getEnd(1));
+        t.addEnd(t.divergentRoute.getEnd(1));
         //t.divergentRoute.getEnd(1).parent = t;
         // disconnect the previous track to avoid errors
-        end.connectedEnd = null;
+        end.disconnect();
         if (Double.isInfinite(radiusMain)) {
             t.mainRoute = StraightTrack.create(end, mainLength);
         }
@@ -118,24 +121,25 @@ public class Turnout extends Junction {
             t.mainRoute = CurvedTrack.create(end, dir == Track.Direction.WYE ? Track.Direction.RIGHT : dir, radiusMain, clearanceArcRadians);
         }
         t.components.add(t.mainRoute);
-        t.ends.add(0, t.mainRoute.getEnd(1));
+        t.addEndFirst(t.mainRoute.getEnd(1));
         // set the turnout to a random state
         t.selectedRoute = (Math.random() >= 0.5) ? t.mainRoute : t.divergentRoute;
         //t.mainRoute.getEnd(1).parent = t;
         // disconnect the previous track to avoid errors
-        end.connectedEnd = null;
+        end.disconnect();
 
 
 
 
         t.entry = TrackEnd.createAttached(t, end);
-        t.ends.add(0, t.entry);
+        t.addEndFirst(t.entry);
 
-        for (TrackEnd tEnd : t.ends)
-            tEnd.setParent(t);
-        
-        for (BasicTrack component : t.components)
-            component.parent = t;
+        t.ends.forEach(e -> {
+            e.setParent(t);
+            if (e.connectedEnd == throwawayEnd)
+                e.disconnect();
+        });
+        t.components.forEach(ep -> ep.setParent(t));
 
         //StraightTrack straight = StraightTrack.create(end, length)
 

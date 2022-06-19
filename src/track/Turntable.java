@@ -2,6 +2,7 @@ package track;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import path.PathException;
@@ -15,47 +16,76 @@ public class Turntable extends Junction {
     public static final double ENTRY_LENGTH = 2;
     public static final double CLEARANCE = Track.HORZ_CLEARANCE * 0.666;
     
-    protected List<StraightTrack> entryPoints;
     protected StraightTrack table;
 
-    public static Turntable create (TrackEnd end, double length, int exits) throws TrackException {
+    protected List<TrackEnd> entranceEnds;
+    protected List<TrackEnd> exitEnds;
+
+
+    public static Turntable create (TrackEnd end, double length, int entries, int exits) throws TrackException {
         int maxExits = (int)Math.floor(Math.PI * length / CLEARANCE);
-        if (exits < 1 || exits > maxExits)
-            throw new TrackException(String.format("A %1.1fm turntable must have between 1 and %d exits", length, maxExits));
+        if (exits < 0 || entries < 1 || (entries + exits) > maxExits)
+            throw new TrackException(String.format("A %1.1fm turntable must have at least 1 entry and at most %d entries and exits", length, maxExits));
 
 
         Turntable t = new Turntable();
         t.length = length;
         StraightTrack entry = StraightTrack.create(end, ENTRY_LENGTH);
-        t.pivotPoint = new Point(entry.getEnd(1), entry.getEnd(1).getAng(), length / 2);
-        t.entryPoints.add(entry);
+        t.pivotPoint = t.addReferencePoint(new Point(entry.getEnd(1), entry.getEnd(1).getAng(), length / 2));
+        t.components.add(entry);
         t.table = StraightTrack.create(entry.getEnd(1), length);
-        t.ends.add(entry.getEnd(0));
-        double exitAngle = t.table.getEnd(1).getAng();
+        t.entranceEnds.add(t.addEnd(entry.getEnd(0)));
+
+        double exitAngle = t.table.getEnd(0).getAng();
         double exitAngleStep = (Math.PI * 2) / (Math.PI * length / CLEARANCE);
-        for (int i = 1; i < exits; i++)
+        for (int i = 1; i < entries; i++)
         {
+            exitAngle += ((exitAngleStep * (i)) * ((i % 2 == 1) ? 1.0 : -1.0));
             Point exitStartPoint = new Point(t.pivotPoint, exitAngle, length / 2);
             Point exitFinishPoint = new Point(exitStartPoint, exitAngle, ENTRY_LENGTH);
 
-            if (i == 1)
+            entry = StraightTrack.create(exitStartPoint, exitFinishPoint);
+            t.entranceEnds.add(t.addEnd(entry.getEnd(1)));
+            t.components.add(entry);
+        }
+        exitAngle = t.table.getEnd(1).getAng();
+        exitAngleStep = (Math.PI * 2) / (Math.PI * length / CLEARANCE);
+        for (int i = 0; i < exits; i++)
+        {
+            exitAngle += ((exitAngleStep * (i)) * ((i % 2 == 1) ? 1.0 : -1.0));
+            Point exitStartPoint = new Point(t.pivotPoint, exitAngle, length / 2);
+            Point exitFinishPoint = new Point(exitStartPoint, exitAngle, ENTRY_LENGTH);
+
+            if (i == 0)
                 entry = StraightTrack.create(t.table.getEnd(1), ENTRY_LENGTH);
             else
                 entry = StraightTrack.create(exitStartPoint, exitFinishPoint);
-            t.ends.add(entry.getEnd(1));
-            t.entryPoints.add(entry);
-            exitAngle += ((exitAngleStep * (i)) * ((i % 2 == 1) ? 1.0 : -1.0));
+            t.exitEnds.add(t.addEnd(entry.getEnd(1)));
+            t.components.add(entry);
         }
 
         t.ends.forEach(e -> e.setParent(t));
-        t.entryPoints.forEach(ep -> ep.setParent(t));
+        t.components.forEach(ep -> ep.setParent(t));
 
         return t;
     }
 
     protected Turntable () {
         super();
-        entryPoints = new ArrayList<>();
+        entranceEnds = new ArrayList<>();
+        exitEnds = new ArrayList<>();
+    }
+
+    public List<TrackEnd> getEntranceEnds () {
+        return Collections.unmodifiableList(entranceEnds);
+    }
+
+    public TrackEnd getEntranceEnd (int i) {
+        return entranceEnds.get(i);
+    }
+
+    public List<TrackEnd> getExitEnds () {
+        return Collections.unmodifiableList(exitEnds);
     }
 
     @Override
@@ -109,8 +139,9 @@ public class Turntable extends Junction {
     @Override
     public void render(Viewport v) {
         v.setColor(Color.DARK_GRAY);
-        v.drawArc(pivotPoint, length / 2, 0, 360);
-        entryPoints.forEach(ep -> ep.render(v));
+        v.drawArc(pivotPoint, (length / 2) - 0.5, 0, 360);
+        v.drawArc(pivotPoint, (length / 2), 0, 360);
+        components.forEach(ep -> ep.render(v));
         table.render(v);
     }
 
