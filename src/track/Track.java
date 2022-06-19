@@ -2,8 +2,10 @@ package track;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import path.PathException;
@@ -96,12 +98,15 @@ public abstract class Track {
      * @param connectEnds connect the ends logically
      * @throws TrackException if the move is not impossible
      */
-    public void moveAndConnect (TrackEnd sourceEnd, TrackEnd targetEnd, boolean connectEnds) throws TrackException {
+    public void moveAndConnect (TrackEnd sourceEnd, TrackEnd targetEnd, boolean connectEnds, Set<TrackEnd> alreadyMoved) throws TrackException {
         if (!ends.contains(sourceEnd))
             throw new TrackException(this, "Doesn't contain " + sourceEnd);
         if (ends.contains(targetEnd))
             throw new TrackException(this, "Can't connect track to itself " + targetEnd);
+
         // TODO - add some path type checks for connected tracks
+        if (alreadyMoved == null)
+            alreadyMoved = new HashSet<>();
 
 
         // work out all the range and bearings relative to sourceEnd for all other ends and control points
@@ -114,18 +119,27 @@ public abstract class Track {
         double rotationAngle = Point.reverse(sourceEnd.getAng()) - targetEnd.getAng();
 System.out.format("Rotating by %1.1f\u00A0\n", Math.toDegrees(rotationAngle));
         sourceEnd.moveAndConnect(targetEnd, connectEnds);
+        alreadyMoved.add(sourceEnd);
 
         // and the other reference points
         // finally adjust all other ends
         for (Map.Entry<Point, RangeAndBearing> entry : rangeAndBearingToRefPoints.entrySet()) {
             if (entry.getKey() == sourceEnd)
                 continue;
-            if (entry.getKey() instanceof TrackEnd)
-                ((TrackEnd)entry.getKey()).moveAndRotate(sourceEnd, entry.getValue(), rotationAngle);
-            else
+            if (entry.getKey() instanceof TrackEnd && !alreadyMoved.contains(entry.getKey())) {
+                TrackEnd otherEnd = (TrackEnd)entry.getKey();
+                otherEnd.moveAndRotate(sourceEnd, entry.getValue(), rotationAngle);
+                alreadyMoved.add(otherEnd);
+                if (otherEnd.connectedEnd != null) {
+                    otherEnd.getConnectedTrack().moveAndConnect(otherEnd.connectedEnd, otherEnd, false, alreadyMoved); // already connected
+                }
+            } else
                 entry.getKey().moveTo(new Point(sourceEnd, Point.subtract(entry.getValue().bearing, rotationAngle), entry.getValue().range));
         }
+    }
 
+    public void moveAndConnect (TrackEnd sourceEnd, TrackEnd targetEnd, boolean connectEnds) throws TrackException {
+        moveAndConnect(sourceEnd, targetEnd, connectEnds, null);
     }
 
 }
