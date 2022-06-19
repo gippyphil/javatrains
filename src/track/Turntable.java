@@ -27,6 +27,12 @@ public class Turntable extends Junction {
         if (exits < 0 || entries < 1 || (entries + exits) > maxExits)
             throw new TrackException(String.format("A %1.1fm turntable must have at least 1 entry and at most %d entries and exits", length, maxExits));
 
+        final TrackEnd throwawayEnd;
+        if (end == null)
+            end = throwawayEnd = new TrackEnd(null, 0, 0, 0);
+        else
+            throwawayEnd = null;
+    
 
         Turntable t = new Turntable();
         t.length = length;
@@ -34,6 +40,7 @@ public class Turntable extends Junction {
         t.pivotPoint = t.addReferencePoint(new Point(entry.getEnd(1), entry.getEnd(1).getAng(), length / 2));
         t.components.add(entry);
         t.table = StraightTrack.create(entry.getEnd(1), length);
+        t.components.add(t.table);
         t.entranceEnds.add(t.addEnd(entry.getEnd(0)));
 
         double exitAngle = t.table.getEnd(0).getAng();
@@ -64,7 +71,11 @@ public class Turntable extends Junction {
             t.components.add(entry);
         }
 
-        t.ends.forEach(e -> e.setParent(t));
+        t.ends.forEach(e -> {
+            e.setParent(t);
+            if (e.connectedEnd == throwawayEnd)
+                e.disconnect();
+        });
         t.components.forEach(ep -> ep.setParent(t));
 
         return t;
@@ -86,6 +97,10 @@ public class Turntable extends Junction {
 
     public List<TrackEnd> getExitEnds () {
         return Collections.unmodifiableList(exitEnds);
+    }
+
+    public TrackEnd getExitEnd (int i) {
+        return exitEnds.get(i);
     }
 
     @Override

@@ -266,13 +266,15 @@ public class TestWindow extends JFrame {
         lastTurnout3.moveAndConnect(lastTurnout3.getEnd(1), lastTurnout2.getEnd(0), true);
 
         pieces.add(lastCurve = CurvedTrack.create(lastTurnout2.getEnd(2), Track.Direction.LEFT, Turnout.RADIUS_SLOW, Math.PI / 4 - lastTurnout2.getDivergentArcRadians()));
-        pieces.add(turntable = Turntable.create(lastCurve.getEnd(1), 16, 2, 6));
+        pieces.add(turntable = Turntable.create(lastCurve.getEnd(1), 16, 2, 5));
         pieces.add(SplineTrack.create(lastTurnout3.getEnd(2), turntable.getEntranceEnd(1)));
         for (TrackEnd exit : turntable.getExitEnds())
-            pieces.add(StraightTrack.create(exit, 20));
-
+            pieces.add(lastStraight = StraightTrack.create(exit, 20));
 
         pieces.add(SplineTrack.create(lastTurnout.getEnd(1), lastTurnout3.getEnd(0)));
         //pieces.add(SplineTrack.create(mainStraight.getEnd(1), lastTurnout.getEnd(1)));
+
+        pieces.add(turntable = Turntable.create(null, 16, 1, 2));
+        turntable.moveAndConnect(turntable.getExitEnd(0), lastStraight.getEnd(1), true);
     }
 }
