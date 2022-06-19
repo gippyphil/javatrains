@@ -28,7 +28,7 @@ public class StraightTrack extends BasicTrack {
 
         t.length = length;
         t.ends.add(TrackEnd.createAttached(t, end));
-        t.ends.add(TrackEnd.create(t, new Point(end.getLoc(), end.getAng(), length), end.getAng()));
+        t.ends.add(TrackEnd.create(t, new Point(end, end.getAng(), length), end.getAng()));
 //        t.ends.add(TrackEnd.create(t, new Point((Math.cos(end.getAng()) * length) + end.getLoc().lat, (Math.sin(end.getAng()) * length) + end.getLoc().lon), end.getAng()));
         t.getEnd(0).connect(end);
 
@@ -60,10 +60,10 @@ public class StraightTrack extends BasicTrack {
             }
         }
         else {
-            int x1 = v.getX(ends.get(0).getLoc());
-            int y1 = v.getY(ends.get(0).getLoc());
-            int x2 = v.getX(ends.get(1).getLoc());
-            int y2 = v.getY(ends.get(1).getLoc());
+            int x1 = v.getX(ends.get(0));
+            int y1 = v.getY(ends.get(0));
+            int x2 = v.getX(ends.get(1));
+            int y2 = v.getY(ends.get(1));
     
             v.getGraphics().drawLine(x1, y1, x2, y2);
         }
@@ -74,10 +74,10 @@ public class StraightTrack extends BasicTrack {
         double arcX = pivotPoint2.getLon();
         double arcY = pivotPoint2.getLat();
 
-        double lineX1 = ends.get(0).getLoc().getLon();
-        double lineX2 = ends.get(1).getLoc().getLon();
-        double lineY1 = ends.get(0).getLoc().getLat();
-        double lineY2 = ends.get(1).getLoc().getLat();
+        double lineX1 = ends.get(0).getLon();
+        double lineX2 = ends.get(1).getLon();
+        double lineY1 = ends.get(0).getLat();
+        double lineY2 = ends.get(1).getLat();
 
         Point result = Point.findIntersection (arcX, arcY, radius, lineX1, lineY1, lineX2, lineY2);
         if (result != null)
@@ -107,11 +107,11 @@ System.out.println("S" + id + ".getPointFrom(" + distance + ")");
             }
     
             double direction = Point.add(end.getAng(), Math.PI); // 180 deg away
-            return new PointContext(end.getLoc(), direction, distance, this, end);
+            return new PointContext(end, direction, distance, this, end);
         } else if (previousPivot.getTrack() == this) {
             
             // almost as simple!
-            double calcLength = Point.findDistance(previousPivot, pathFrom(end).getLoc());
+            double calcLength = Point.findDistance(previousPivot, pathFrom(end));
             if (distance > calcLength)
             {
                 TrackEnd otherEnd = pathFrom(end);

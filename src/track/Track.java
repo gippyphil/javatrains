@@ -85,10 +85,10 @@ public abstract class Track {
         Map<TrackEnd, RangeAndBearing> rangeAndBearingToEnds = new HashMap<>();
         Map<Point, RangeAndBearing> rangeAndBearingToRefPoints = new HashMap<>();
         ends.stream().filter(e -> e != sourceEnd).forEach(e -> {
-            rangeAndBearingToEnds.put(e, Point.findRangeAndBearing(sourceEnd.getLoc(), e.getLoc()));
+            rangeAndBearingToEnds.put(e, Point.findRangeAndBearing(sourceEnd, e));
         });
         referencePoints.forEach(rp -> {
-            rangeAndBearingToRefPoints.put(rp, Point.findRangeAndBearing(sourceEnd.getLoc(), rp));
+            rangeAndBearingToRefPoints.put(rp, Point.findRangeAndBearing(sourceEnd, rp));
         });
 
         // move and rotate the source Point
@@ -98,13 +98,13 @@ System.out.format("Rotating by %1.1f\u00A0\n", Math.toDegrees(rotationAngle));
 
         // finally adjust all other ends
         for (Map.Entry<TrackEnd, RangeAndBearing> entry : rangeAndBearingToEnds.entrySet()) {
-            entry.getKey().moveAndRotate(sourceEnd.getLoc(), entry.getValue(), rotationAngle);
+            entry.getKey().moveAndRotate(sourceEnd, entry.getValue(), rotationAngle);
         }
 
         // and the other reference points
         // finally adjust all other ends
         for (Map.Entry<Point, RangeAndBearing> entry : rangeAndBearingToRefPoints.entrySet()) {
-            entry.getKey().moveTo(new Point(sourceEnd.getLoc(), Point.subtract(entry.getValue().bearing, rotationAngle), entry.getValue().range));
+            entry.getKey().moveTo(new Point(sourceEnd, Point.subtract(entry.getValue().bearing, rotationAngle), entry.getValue().range));
         }
 
     }

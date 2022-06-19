@@ -2,17 +2,14 @@ package train;
 
 import animation.AnimationListener;
 import path.PathException;
-import track.CurvedTrack;
 import track.Point;
 import track.PointContext;
-import track.StraightTrack;
 import track.Track;
 import track.TrackEnd;
 import track.TrackException;
 import windows.Viewport;
 
 import java.awt.Color;
-import java.util.Arrays;
 
 // TODO is a wagon a subclass?
 // TODO loco is definitely a subclass 

@@ -4,11 +4,10 @@ import windows.Viewport;
 
 import java.awt.Color;
 
-public class TrackEnd {
+public class TrackEnd extends Point {
 
     private static int nextID = 0;
 
-    private Point loc;
     private double ang;
     private Track parent;
     public int id;
@@ -32,10 +31,6 @@ public class TrackEnd {
         parent = junc;
     }
 
-    public Point getLoc() {
-        return loc;
-    }
-
     public double getAng() {
         return ang;
     }
@@ -45,15 +40,19 @@ public class TrackEnd {
     }
 
     public static TrackEnd createAttached (Track parent, TrackEnd other) throws TrackException {
-        TrackEnd t = new TrackEnd(parent, other.getLoc().clone(), Point.reverse(other.getAng()));
+        TrackEnd t = new TrackEnd(parent, other, Point.reverse(other.getAng()));
         t.connect(other);
 
         return t;
     }
 
     protected TrackEnd (Track parent, Point location, double angle) {
+        this(parent, location.getLat(), location.getLon(), angle);
+    }
+
+    protected TrackEnd (Track parent, double lat, double lon, double angle) {
+        super(lat, lon);
         this.parent = parent;
-        this.loc = location;
         this.setAng(angle);
         this.id = ++nextID;
     }
@@ -69,8 +68,8 @@ public class TrackEnd {
     }
 
     public void moveAndConnect (TrackEnd target, boolean connect) throws TrackException {
-        loc.lat = target.loc.lat;
-        loc.lon = target.loc.lon;
+        lat = target.lat;
+        lon = target.lon;
         ang = Point.reverse(target.ang);
         if (connect)
             connect(target);
@@ -78,15 +77,15 @@ public class TrackEnd {
 
     @Override
     public String toString () {
-        return String.format("%04d: %s@%1.3f\u00B0", id, getLoc().toString(), Math.toDegrees(getAng()));
+        return String.format("%04d: %s@%1.3f\u00B0", id, super.toString(), Math.toDegrees(getAng()));
     }
 
     public void render (Viewport v)
     {
         if (v.showDebug()) {
             final int LEN = v.scaledInt(Track.HORZ_CLEARANCE / 2);
-            final int x = v.getX(getLoc());
-            final int y = v.getY(getLoc());
+            final int x = v.getX(this);
+            final int y = v.getY(this);
     
             double leftAng = Point.add(getAng(), Math.PI / 2);
             double rightAng = Point.subtract(getAng(), Math.PI / 2);
@@ -116,7 +115,7 @@ public class TrackEnd {
     }
 
     public void moveAndRotate(Point origin, RangeAndBearing rab, double addedRotation) {
-        loc.moveTo(new Point(origin, Point.subtract(rab.bearing, addedRotation), rab.range));
+        moveTo(new Point(origin, Point.subtract(rab.bearing, addedRotation), rab.range));
         ang = Point.subtract(ang, addedRotation);
     }
 

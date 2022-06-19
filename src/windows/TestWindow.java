@@ -238,7 +238,7 @@ public class TestWindow extends JFrame {
         Consist splineTest = Consist.createDebugConsistToLength(s2.getLength(), false, 1.0);
         splineTest.place(s2.getEnd(1), 30);
         consists.add(splineTest);
-        viewport.centerOn(s2.getEnd(0).getLoc());
+        viewport.centerOn(s2.getEnd(0));
     }
 
     private void testAssembly () throws TrackException, PathException {

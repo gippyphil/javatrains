@@ -27,7 +27,7 @@ public class Turntable extends Junction {
         Turntable t = new Turntable();
         t.length = length;
         StraightTrack entry = StraightTrack.create(end, ENTRY_LENGTH);
-        t.pivotPoint = new Point(entry.getEnd(1).getLoc(), entry.getEnd(1).getAng(), length / 2);
+        t.pivotPoint = new Point(entry.getEnd(1), entry.getEnd(1).getAng(), length / 2);
         t.entryPoints.add(entry);
         t.table = StraightTrack.create(entry.getEnd(1), length);
         t.ends.add(entry.getEnd(0));

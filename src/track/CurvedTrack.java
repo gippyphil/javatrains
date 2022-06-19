@@ -19,7 +19,7 @@ public class CurvedTrack extends BasicTrack {
         t.ends.add(TrackEnd.createAttached(t, end));
 
         double angleToCentre = Point.add(end.getAng(), dir == Direction.RIGHT ? Math.toRadians(90) : Math.toRadians(-90));
-        t.pivotPoint = new Point((Math.cos(angleToCentre) * radius) + end.getLoc().lat, (Math.sin(angleToCentre) * radius) + end.getLoc().lon);
+        t.pivotPoint = new Point((Math.cos(angleToCentre) * radius) + end.lat, (Math.sin(angleToCentre) * radius) + end.lon);
         t.referencePoints.add(t.pivotPoint);
 
 //System.out.println("Curve PivotPoint: " + t.pivotPoint);        
@@ -115,8 +115,8 @@ public class CurvedTrack extends BasicTrack {
 //        System.out.format("findIntersection([%1.1f, %1.1f], [%1.1f, %1.1f], %1.1f) == %1.1f <= %1.1f\n", pivotPoint.getLat(), pivotPoint.getLon(), pivotPoint2.getLat(), pivotPoint2.getLon(), radius2, Math.abs(Math.toDegrees(angle)), Math.abs(Math.toDegrees(arcRadians)));
 
         // measuring from the "other" end has the effect of turning a left turn into a right
-        double startAngle = Point.findAngle(pivotPoint, end.getLoc());
-        double endAngle = Point.findAngle(pivotPoint, pathFrom(end).getLoc());
+        double startAngle = Point.findAngle(pivotPoint, end);
+        double endAngle = Point.findAngle(pivotPoint, pathFrom(end));
         PointContext result = null;
         if (dir == Direction.RIGHT ^ end == ends.get(1)) {
             angle = Point.add(angle, resultAngle);
@@ -156,7 +156,7 @@ System.out.println("C" + id + ".getPointFrom(" + distance + ")");
         if (previousPivot == null)
         {
 System.out.println("Initial placement on T" + this.id);            
-            previousPivot = new PointContext(end.getLoc().getLat(), end.getLoc().getLon(), this, end);
+            previousPivot = new PointContext(end.getLat(), end.getLon(), this, end);
         }
         
         PointContext pc = findIntersection(end, previousPivot, distance);

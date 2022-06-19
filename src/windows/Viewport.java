@@ -41,7 +41,7 @@ public class Viewport {
     }
     
     public int getXOffset (TrackEnd end, double distance, boolean flipAngle) {
-        double lon = end.getLoc().getLon() - leftLon;
+        double lon = end.getLon() - leftLon;
 
         double leftAng = Point.add(end.getAng(), Math.PI / (flipAngle ? 2 : -2));
 
@@ -65,7 +65,7 @@ public class Viewport {
     }
  
     public int getYOffset (TrackEnd end, double distance, boolean flipAngle) {
-        double lat = end.getLoc().getLat() - bottomLat;
+        double lat = end.getLat() - bottomLat;
 
         double leftAng = Point.add(end.getAng(), Math.PI / (flipAngle ? 2 : -2));
 

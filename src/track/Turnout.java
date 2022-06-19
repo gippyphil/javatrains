@@ -50,10 +50,10 @@ public class Turnout extends Junction {
         double clearanceArcRadians = Math.toRadians(15);
         double mainLength = Double.NaN; 
         if (Double.isInfinite(radiusMain)) {
-            Point p1 = new Point(end.getLoc(), Point.add(end.getAng(), (dir == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2)), Track.HORZ_CLEARANCE / 2);
+            Point p1 = new Point(end, Point.add(end.getAng(), (dir == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2)), Track.HORZ_CLEARANCE / 2);
             Point p2 = new Point(p1, end.getAng(), 100000); // a long way ...
 
-            Point pArc = new Point(end.getLoc(), Point.add(end.getAng(), (dir == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2)), radiusDivergent);
+            Point pArc = new Point(end, Point.add(end.getAng(), (dir == Direction.RIGHT ? Math.PI / 2 : -Math.PI / 2)), radiusDivergent);
 
             Point p3 = Point.findIntersection(pArc.getLon(), pArc.getLat(), radiusDivergent, p1.getLon(), p1.getLat(), p2.getLon(), p2.getLat());
             if (p3 == null) {
@@ -76,10 +76,10 @@ public class Turnout extends Junction {
         }
         else if (dir == Track.Direction.WYE) {
             // main radius is RIGHT
-            Point p1 = new Point(end.getLoc(), Point.add(end.getAng(), Math.PI / 2), Track.HORZ_CLEARANCE / 4);
+            Point p1 = new Point(end, Point.add(end.getAng(), Math.PI / 2), Track.HORZ_CLEARANCE / 4);
             Point p2 = new Point(p1, end.getAng(), 100000); // a long way ...
 
-            Point pArc = new Point(end.getLoc(), Point.add(end.getAng(), Math.PI / 2), radiusMain);
+            Point pArc = new Point(end, Point.add(end.getAng(), Math.PI / 2), radiusMain);
 
             Point p3 = Point.findIntersection(pArc.getLon(), pArc.getLat(), radiusMain, p1.getLon(), p1.getLat(), p2.getLon(), p2.getLat());
             if (p3 == null) {
@@ -210,8 +210,8 @@ public class Turnout extends Junction {
         if (v.showDebug() && selectedRoute != null)
         {
             v.setColor(Color.CYAN);
-            v.drawLine(ends.get(0).getLoc(), new Point(ends.get(0).getLoc(), Point.add(ends.get(0).getAng(), (selectedRoute == mainRoute ^ divergeDirection == Direction.RIGHT) ? -Math.PI / 2 : Math.PI / 2), Track.GAUGE));
-            v.drawArc(ends.get(0).getLoc(), Track.GAUGE / 4, 0, Math.PI * 2);
+            v.drawLine(ends.get(0), new Point(ends.get(0), Point.add(ends.get(0).getAng(), (selectedRoute == mainRoute ^ divergeDirection == Direction.RIGHT) ? -Math.PI / 2 : Math.PI / 2), Track.GAUGE));
+            v.drawArc(ends.get(0), Track.GAUGE / 4, 0, Math.PI * 2);
         }
 
         if (v.showDebug()) {
