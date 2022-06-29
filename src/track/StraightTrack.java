@@ -88,7 +88,6 @@ public class StraightTrack extends BasicTrack {
 
     @Override
     public PointContext getPointFrom (PointContext previousPivot, TrackEnd end, double distance) throws PathException, TrackException {
-System.out.println("S" + id + ".getPointFrom(" + distance + ")");
         if (!ends.contains(end))
             throw new TrackException(this, "Doesn't contain " + end);
 
@@ -108,15 +107,15 @@ System.out.println("S" + id + ".getPointFrom(" + distance + ")");
             double direction = Point.add(end.getAng(), Math.PI); // 180 deg away
             return new PointContext(end, direction, distance, this, end);
         } else if (previousPivot.getTrack() == this) {
-            
+           
             // almost as simple!
-            double calcLength = Point.findDistance(previousPivot, pathFrom(end));
-            if (distance > calcLength)
+            double remainingLength = Point.findDistance(previousPivot, pathFrom(end));
+System.out.println("S" + id + ".getPointFrom(" + distance + " >? " + remainingLength + ")");
+            if (distance > remainingLength)
             {
                 TrackEnd otherEnd = pathFrom(end);
                 if (otherEnd.connectedEnd == null) {
-                    double remainingLength = distance - calcLength;
-                    throw new PathException(this, String.format("Point is %1.1fm off the end of track", remainingLength));
+                    throw new PathException(this, String.format("Point is %1.1fm off the end of track", distance - remainingLength));
                 }
                 return otherEnd.getConnectedTrack().getPointFrom(previousPivot, otherEnd.connectedEnd, distance);
             }

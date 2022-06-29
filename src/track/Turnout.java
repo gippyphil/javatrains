@@ -139,7 +139,13 @@ public class Turnout extends Junction {
             if (e.connectedEnd == throwawayEnd)
                 e.disconnect();
         });
-        t.components.forEach(ep -> ep.setParent(t));
+        final TrackEnd finalEnd = end;
+        t.components.forEach(component -> {
+            component.setParent(t);
+            // connect this component back to the track for traffic flowing back into the junction
+            if (throwawayEnd == null)
+                component.getEnd(0).connectedEnd = finalEnd;
+        });
 
         //StraightTrack straight = StraightTrack.create(end, length)
 

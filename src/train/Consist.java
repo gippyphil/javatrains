@@ -42,14 +42,14 @@ public class Consist {
     {
         double len = randomizeLengths ? 10 + (Math.random() * 10) : 19.0; // 60'
         double offset = len * 0.13;
-        Vehicle firstVehicle = new Vehicle(len, offset, offset);
+        Vehicle firstVehicle = new Locomotive(len, offset, offset, 120000, 288000);
         Consist test = new Consist("Debug Consist " + (nextID + 1), firstVehicle);
 
         for (int i = 1; i < vehicleCount; i++)
         {
             len = randomizeLengths ? 10 + (Math.random() * 10) : 19.0; // 60'
             offset = len * 0.13;
-            Vehicle nextVehicle = new Vehicle(len, offset, offset);
+            Vehicle nextVehicle = new Vehicle(len, offset, offset, 50000);
             test.addVehicleBack(nextVehicle);
         }
 
@@ -60,7 +60,7 @@ public class Consist {
     {
         double len = randomizeLengths ? 10 + (Math.random() * 10) : 19.0; // 60'
         double offset = len * 0.13;
-        Vehicle firstVehicle = new Vehicle(len, offset, offset);
+        Vehicle firstVehicle = new Locomotive(len, offset, offset, 120000, 288000);
         Consist test = new Consist("Debug Consist " + (++nextID), firstVehicle);
 
         while (true)
@@ -71,7 +71,7 @@ public class Consist {
             if (Math.random() > reliability)
                 break;
             offset = len * 0.13;
-            Vehicle nextVehicle = new Vehicle(len, offset, offset);
+            Vehicle nextVehicle = new Vehicle(len, offset, offset, 50000);
             test.addVehicleBack(nextVehicle);
         }
 
@@ -117,6 +117,23 @@ System.out.format("%01d -> %01d: %1.2f\n", prevVehicle.id, vehicle.id, prevOffse
             }
             vehicle.place(prevWheel, prevWheel == null ? start : prevWheel.getEnd(), prevOffset);
 
+            prevWheel = vehicle.getBackWheel();
+            prevVehicle = vehicle;
+        }
+    }
+
+    // TODO - this is a hack for now    
+    public void advance (double distance) throws PathException, TrackException {
+        PointContext prevWheel = null;
+        Vehicle prevVehicle = null;
+        for (Vehicle vehicle : vehicles) {
+            if (prevWheel == null)
+                vehicle.place(vehicle.frontWheel, vehicle.frontWheel.getEnd(), distance);
+            else
+            {
+                double offset = prevVehicle.distanceToBackWheel + Vehicle.GAP + vehicle.distanceToFrontWheel;
+                vehicle.place(prevWheel, prevWheel.getEnd(), offset);
+            }
             prevWheel = vehicle.getBackWheel();
             prevVehicle = vehicle;
         }

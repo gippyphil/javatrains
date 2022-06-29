@@ -35,6 +35,7 @@ public class SplineTrack extends BasicTrack {
         int pCount = (int)Math.floor(straightLineDistance * 1);
         double tStep = 1.0 / pCount;
         
+        double prevAngle = Point.reverse(spline.getEnd(0).getAng());
         spline.length = 0.0;
         Point prevP = spline.controlPoints[1];
         for (double t = tStep; t <= 1.0 - tStep; t += tStep) {
@@ -61,14 +62,16 @@ public class SplineTrack extends BasicTrack {
             Point p = new Point(ty, tx);
             double angle = Point.findAngle(prevP, p);
             spline.length += Point.findDistance(prevP, p);
-//System.out.format("   %1.3f", angle); System.out.println();
+System.out.format("\tchange in angle: %1.3f\n", angle - prevAngle);
             spline.splinePoints.add(spline.addReferencePoint(p));
             spline.splinePointsRail1.add(spline.addReferencePoint(new Point(p, angle + Math.PI * 0.5, GAUGE / 2)));
             spline.splinePointsRail2.add(spline.addReferencePoint(new Point(p, angle - Math.PI * 0.5, GAUGE / 2)));
 
             prevP = p;
+            prevAngle = angle;
         }
         spline.length += Point.findDistance(prevP, spline.controlPoints[2]);
+        System.out.format("\tchange in angle: %1.3f\n", Point.reverse(spline.getEnd(1).getAng()) - prevAngle);
 
         return spline;
     }

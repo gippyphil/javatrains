@@ -40,8 +40,12 @@ public class Point {
         );
     }
 
+    public static final double FP_DELTA = 0.000001d;
     public static boolean inRange (double min, double val, double max) {
-        return (min <= val && val <= max) || (max <= val && val <= min);
+        boolean result = (min - FP_DELTA <= val && val <= max + FP_DELTA) || (max - FP_DELTA <= val && val <= min + FP_DELTA);
+        if (!result)
+            System.out.format("Not in range! (%1.20f <= %1.20f <= %1.20f\n", min, val, max);
+        return result;
     }
 
     public static Point findIntersection (double arcX, double arcY, double radius, double lineX1, double lineY1, double lineX2, double lineY2) {
@@ -102,10 +106,11 @@ public class Point {
      */
     public static boolean containsAngle (double startAngle, double angle, double endAngle)
     {
+        angle %= (Math.PI * 2.0d);
         if (endAngle > startAngle)
-            return (startAngle <= angle && angle <= endAngle);
+            return inRange(startAngle, angle, endAngle);
         else // wraps through 0
-            return (startAngle <= angle && angle < 360.0)|| (angle <= endAngle && angle >= 0.0);
+            return inRange(startAngle, angle, Math.PI * 2.0d) || inRange(0.0d, angle, endAngle);
     }
 
     @Override

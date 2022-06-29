@@ -15,6 +15,7 @@ import track.TrackException;
 import track.Turnout;
 import track.Turntable;
 import train.Consist;
+import train.Locomotive;
 import train.Vehicle;
 
 import java.awt.Color;
@@ -33,6 +34,8 @@ public class TestWindow extends JFrame {
 
     protected List<Track> pieces;
     protected List<Consist> consists;
+
+    protected Thread animationThread;
     
     public static void main (String args[]) throws Exception {
         new TestWindow();
@@ -72,12 +75,38 @@ public class TestWindow extends JFrame {
     
         pieces = new ArrayList<>();
         consists = new ArrayList<>();
-        //testTurnouts();
+
         //testCurves();
-        testAssembly();
+        //testAssembly();
+        testTurnouts();
+        //testRunning();
 
+        animationThread = new Thread () {
+            @Override
+            public void run () {
+                double delta = 0.1d;
+                while (true) {
+                    try {
+                        for (Consist c : consists) {
+                            try
+                            {
+                                c.advance(delta);
+                            } catch (PathException e) {
+                                delta *= -1.0; // reverse
+                            }
+                        }
+                        repaint();
+                        sleep(200);       
+                    } catch (InterruptedException e) {
+                        continue;
+                    } catch (Exception e) {
+                        break;
+                    }
+                }
+            }
+        };
+        animationThread.start();
 
-        repaint();
         setVisible(true);
     }
 
@@ -98,6 +127,22 @@ public class TestWindow extends JFrame {
         }
     }
 
+
+
+    private void testRunning  () throws TrackException, PathException {
+        Turnout lastTurnout = null;
+        StraightTrack placement = null;
+
+        pieces.add(StraightTrack.create(new Point(-110, -10), new Point(10, -10)));
+        pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
+        pieces.add(placement = StraightTrack.create(lastTurnout.getEnd(1), 100));
+        pieces.add(StraightTrack.create(lastTurnout.getEnd(2), 100));
+
+        Consist test = Consist.createDebugConsist(5, false);
+        double remainingLength = placement.getLength() * 0.8 - test.getLength();
+        test.place(placement.getEnd(0), remainingLength * Math.random());
+        consists.add(test);
+}
 
     private void testCurves () throws TrackException, PathException { 
         StraightTrack straight = StraightTrack.create(new Point(-20, 0), new Point(-23, 20));
@@ -148,14 +193,14 @@ public class TestWindow extends JFrame {
         pieces.add(last = StraightTrack.create(lastTurnout.getEnd(2), 400));
         sidings.add(last);
         pieces.add(CurvedTrack.create(lastTurnout.getEnd(1), Track.Direction.LEFT, Turnout.RADIUS_MEDIUM, Math.PI / 3 - lastTurnout.getDivergentArcRadians()));
-        pieces.add(turntable = Turntable.create(pieces.get(pieces.size() - 1).getEnd(1), 28, 1 + (int)(Math.random() * 30)));
+        pieces.add(turntable = Turntable.create(pieces.get(pieces.size() - 1).getEnd(1), 28, 2, 1 + (int)(Math.random() * 30)));
 
-        for (int i = 1; i < turntable.getEnds().size(); i++) {
-            StraightTrack tt = StraightTrack.create(turntable.getEnd(i), 25);
+        for (int i = 0; i < turntable.getExitEnds().size(); i++) {
+            StraightTrack tt = StraightTrack.create(turntable.getExitEnd(i), 25);
             pieces.add(tt);
 
             if (Math.random() > 0.75) {
-                Consist loco = new Consist("Loco" + i, new Vehicle(17.0, 2.4, 2.4));
+                Consist loco = new Consist("Loco" + i, new Locomotive(17.0, 2.4, 2.4, 120000, 288000));
                 loco.place(tt.getEnd((int)Math.round(Math.random())), 1 /*Math.random() * (tt.getLength() - loco.getLength())*/);
                 consists.add(loco);
             }
@@ -235,7 +280,7 @@ public class TestWindow extends JFrame {
         pieces.add(s2 = StraightTrack.create(new Point(160, 115), new Point(195, 130)));
         pieces.add(SplineTrack.create(s1.getEnd(1), s2.getEnd(0)));
 
-        Consist splineTest = Consist.createDebugConsistToLength(s2.getLength(), false, 1.0);
+        Consist splineTest = Consist.createDebugConsistToLength(s2.getLength() * 2, false, 1.0);
         splineTest.place(s2.getEnd(1), 30);
         consists.add(splineTest);
         viewport.centerOn(s2.getEnd(0));
@@ -246,13 +291,14 @@ public class TestWindow extends JFrame {
         StraightTrack lastStraight, mainStraight, passingStraight = null;
         CurvedTrack lastCurve = null;
         Turntable turntable = null;
+        BasicTrack placement = null;
 
         // passing loop
         pieces.add(lastStraight = StraightTrack.create(new Point(-100, -10), new Point(10, -10)));
         pieces.add(lastTurnout = Turnout.createLeft(pieces.get(pieces.size() - 1).getEnd(1), Turnout.RADIUS_FAST));
         pieces.add(mainStraight = StraightTrack.create(lastTurnout.getEnd(1), 100));
         pieces.add(lastCurve = CurvedTrack.create(lastTurnout.getEnd(2), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout.getDivergentArcRadians()));
-        pieces.add(passingStraight = StraightTrack.create(lastCurve.getEnd(1), 100));
+        pieces.add(placement = passingStraight = StraightTrack.create(lastCurve.getEnd(1), 100));
         pieces.add(lastCurve = CurvedTrack.create(passingStraight.getEnd(1), Track.Direction.RIGHT, Turnout.RADIUS_FAST, lastTurnout.getDivergentArcRadians()));
 
 
@@ -270,7 +316,7 @@ public class TestWindow extends JFrame {
         for (TrackEnd exit : turntable.getExitEnds())
             pieces.add(lastStraight = StraightTrack.create(exit, 20));
 
-        pieces.add(SplineTrack.create(lastTurnout.getEnd(1), lastTurnout3.getEnd(0)));
+        pieces.add(SplineTrack.create(lastTurnout3.getEnd(0), lastTurnout.getEnd(1)));
         //pieces.add(SplineTrack.create(mainStraight.getEnd(1), lastTurnout.getEnd(1)));
 
         pieces.add(turntable = Turntable.create(null, 16, 2, 2));
@@ -282,5 +328,9 @@ public class TestWindow extends JFrame {
         pieces.add(lastCurve = CurvedTrack.create(lastTurnout3.getEnd(2), Track.Direction.RIGHT, Turnout.RADIUS_MEDIUM, lastTurnout3.getDivergentArcRadians()));
 
         lastCurve.moveAndConnect(lastCurve.getEnd(1), lastTurnout.getEnd(0), true);
+
+        Consist test = Consist.createDebugConsistToLength(80, true, 1);
+        test.place(placement.getEnd(1), 0);
+        consists.add(test);
     }
 }

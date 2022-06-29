@@ -11,8 +11,6 @@ import windows.Viewport;
 
 import java.awt.Color;
 
-// TODO is a wagon a subclass?
-// TODO loco is definitely a subclass 
 // TODO special subclass for articulated vehicles (eg; garrats)?
 // TODO special subclass for permanently coupled vehicles (eg: engine and tender)?
 public class Vehicle implements AnimationListener {
@@ -28,10 +26,14 @@ public class Vehicle implements AnimationListener {
     protected PointContext backWheel;
     protected Point frontPoint;
     protected Point backPoint;
-    protected double distanceToFrontWheel;
-    protected double distanceToBackWheel;
-    protected double length;
-    protected double wheelbase;
+    protected double distanceToFrontWheel; // metres
+    protected double distanceToBackWheel; // metres
+    protected double length; // metres
+    protected double wheelbase; // metres
+    protected double weight; // kilograms
+
+    protected Vehicle frontCoupler;
+    protected Vehicle backCoupler;
 
     protected double angle;
     protected double speed; // metres per second
@@ -42,9 +44,10 @@ public class Vehicle implements AnimationListener {
 
     protected Color col;
 
-    public Vehicle (double length, double distanceToFrontWheel, double distanceToBackWheel)
+    public Vehicle (double length, double distanceToFrontWheel, double distanceToBackWheel, double weight)
     {
         this.length = length;
+        this.weight = weight;
         this.distanceToFrontWheel = distanceToFrontWheel;
         this.distanceToBackWheel = distanceToBackWheel;
         this.wheelbase = length - distanceToBackWheel - distanceToFrontWheel;
@@ -134,12 +137,11 @@ System.out.format("V%04d: %s %s == %1.1f\n", id, frontPoint, backPoint, Point.fi
         int xPoints[] = {viewport.getX(corner1), viewport.getX(corner2), viewport.getX(corner3), viewport.getX(corner4)};
         int yPoints[] = {viewport.getY(corner1), viewport.getY(corner2), viewport.getY(corner3), viewport.getY(corner4)};
 
-
         if (!viewport.showDebug()) {
             viewport.getGraphics().setColor(this.col);
             viewport.getGraphics().fillPolygon(xPoints, yPoints, 4);
         }
-        viewport.getGraphics().setColor(Color.WHITE);
+        viewport.getGraphics().setColor(this instanceof Locomotive ? Color.RED : Color.WHITE);
         viewport.getGraphics().drawPolygon(xPoints, yPoints, 4);
 
         // DEBUG ONLY!
@@ -149,7 +151,6 @@ System.out.format("V%04d: %s %s == %1.1f\n", id, frontPoint, backPoint, Point.fi
             int x2 = viewport.getX(backWheel);
             int y2 = viewport.getY(backWheel);
 
-            int gfxWheelbase = viewport.scaledInt(wheelbase);
             viewport.getGraphics().setColor(Color.GREEN);
             viewport.getGraphics().drawArc(x1 - 2, y1 - 2, 4, 4, 0, 360);
             viewport.getGraphics().drawString("T" + frontWheel.getTrack().id, x1, y1 + 10);
